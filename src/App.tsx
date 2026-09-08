@@ -10,6 +10,7 @@ import { ReviewModal } from './components/ReviewModal';
 import { AddBookModal } from './components/AddBookModal';
 import { MaintenanceView } from './components/MaintenanceView';
 import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 export default function App() {
   const [books, setBooks] = useState<Book[]>([]);
@@ -331,6 +332,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      <SpeedInsights />
     </div>
   );
 }
