@@ -1,0 +1,76 @@
+[
+  {
+    "id": "audit-1788830264988-vu6cp",
+    "timestamp": "2026-09-08T01:17:44.988Z",
+    "actionType": "bulk_update",
+    "targetTitle": "1冊のISBN一括修正",
+    "details": "ネット検索により 1冊の書籍にISBN（および書誌情報）を一括反映・修正しました",
+    "changes": [
+      {
+        "field": "isbn",
+        "fieldLabel": "大人のクイズ (ISBN)",
+        "oldValue": "未登録",
+        "newValue": "978-4-8731-1565-8"
+      }
+    ],
+    "operator": "ISBN一括照合修正"
+  },
+  {
+    "id": "audit-1788828442958-kv1m4",
+    "timestamp": "2026-09-08T00:47:22.958Z",
+    "actionType": "bulk_delete",
+    "targetTitle": "7冊の書籍",
+    "details": "7冊の書籍を一括削除しました（例: リーダブルコード ―より良いコードを書くためのシンプルで実践的なテクニック、嫌われる勇気 自己啓発の源流「アドラー」の教え、OCR読み取り不可（背表紙退色・印字スレ）…他）",
+    "changes": [],
+    "operator": "一括メンテナンス"
+  },
+  {
+    "id": "log-seed-1",
+    "timestamp": "2026-09-06T00:34:45.121Z",
+    "actionType": "update",
+    "targetTitle": "リーダブルコード ―より良いコードを書くためのシンプルで実践的なテクニック",
+    "targetBookId": "book-seed-1",
+    "details": "読書状況を「読了」に更新し、レビュー・評価★5を追加しました。",
+    "changes": [
+      {
+        "field": "readingStatus",
+        "fieldLabel": "読書状況",
+        "oldValue": "reading",
+        "newValue": "completed"
+      },
+      {
+        "field": "rating",
+        "fieldLabel": "評価",
+        "oldValue": 0,
+        "newValue": 5
+      }
+    ],
+    "operator": "ユーザー操作"
+  },
+  {
+    "id": "log-seed-2",
+    "timestamp": "2026-09-04T00:34:45.121Z",
+    "actionType": "bulk_update",
+    "targetTitle": "第1書架 A-1棚の書籍 (3冊)",
+    "details": "本棚配置を一括して「第1書架 A-1棚」に整理しました。",
+    "changes": [
+      {
+        "field": "shelfLocation",
+        "fieldLabel": "本棚の場所",
+        "oldValue": "未定",
+        "newValue": "第1書架 A-1棚"
+      }
+    ],
+    "operator": "一括編集"
+  },
+  {
+    "id": "log-seed-3",
+    "timestamp": "2026-09-03T00:34:45.121Z",
+    "actionType": "create",
+    "targetTitle": "嫌われる勇気 自己啓発の源流「アドラー」の教え",
+    "targetBookId": "book-seed-2",
+    "details": "手動登録により書籍を追加しました。",
+    "changes": [],
+    "operator": "手動登録"
+  }
+]

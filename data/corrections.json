@@ -1,0 +1,35 @@
+[
+  {
+    "id": "corr-seed-1",
+    "originalTitle": "リーダブルコード",
+    "correctedTitle": "リーダブルコード ―より良いコードを書くためのシンプルで実践的なテクニック",
+    "originalAuthor": "Dustin",
+    "correctedAuthor": "Dustin Boswell, Trevor Foucher",
+    "publisher": "オライリー・ジャパン",
+    "isbn": "978-4-87311-565-8",
+    "source": "scan_edit",
+    "createdAt": "2026-02-10T10:00:00.000Z"
+  },
+  {
+    "id": "corr-seed-2",
+    "originalTitle": "嫌われる勇気",
+    "correctedTitle": "嫌われる勇気 自己啓発の源流「アドラー」の教え",
+    "originalAuthor": "岸見一郎",
+    "correctedAuthor": "岸見 一郎, 古賀 史健",
+    "publisher": "ダイヤモンド社",
+    "isbn": "978-4-478-02581-9",
+    "source": "scan_edit",
+    "createdAt": "2026-02-15T14:30:00.000Z"
+  },
+  {
+    "id": "corr-seed-3",
+    "originalTitle": "プロジェクトヘイルメアリー",
+    "correctedTitle": "プロジェクト・ヘイル・メアリー (上・下)",
+    "originalAuthor": "アンディ",
+    "correctedAuthor": "アンディ・ウィアー",
+    "publisher": "早川書房",
+    "isbn": "978-4-15-012344-5",
+    "source": "scan_edit",
+    "createdAt": "2026-03-01T11:20:00.000Z"
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "name": "本棚書籍管理アプリ",
+  "description": "本棚の写真からAIで書籍情報を自動認識して蔵書点検を行い、本棚・書籍一覧のCSVエクスポートやOCR読み取り不可冊数の集計ができるアプリ",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

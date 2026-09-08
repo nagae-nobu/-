@@ -1,0 +1,1122 @@
+[
+  {
+    "id": "book-1788828637780-0-xswwo",
+    "title": "大人のクイズ",
+    "author": "藤沢周",
+    "publisher": "テスト出版",
+    "publishedYear": "2024",
+    "isbn": "978-4-8731-1565-8",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fefce8",
+    "summary": "独特の文体で綴られる文学作品。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T01:17:44.987Z"
+  },
+  {
+    "id": "book-1788828637780-1-dti2m",
+    "title": "情報隠蔽国家",
+    "author": "青木理",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ノンフィクション",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#171717",
+    "summary": "現代社会における情報のあり方を問う社会派ノンフィクション。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ノンフィクション"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-2-df9vz",
+    "title": "11文字の檻",
+    "author": "青崎有吾",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#f8fafc",
+    "summary": "巧妙なトリックが仕掛けられたミステリー小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-3-fbh5z",
+    "title": "水族館の殺人",
+    "author": "青崎有吾",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fefce8",
+    "summary": "人気シリーズのミステリー小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-4-2h2f0",
+    "title": "書店ガール",
+    "author": "碧野圭",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fce7f3",
+    "summary": "書店員を主人公にしたお仕事小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-5-61c2y",
+    "title": "凪に溺れる",
+    "author": "青山美智子",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#dbeafe",
+    "summary": "美しい描写で描かれる物語。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-6-dbtbf",
+    "title": "本は眺めたり触ったりが楽しい",
+    "author": "浜村渚の計算ノート",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "エッセイ",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#ccfbf1",
+    "summary": "本にまつわる愛着を綴ったエッセイ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "エッセイ"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-7-cd838",
+    "title": "神隠しに花束を",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#a5f3fc",
+    "summary": "赤川次郎のミステリー小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-8-vyv0f",
+    "title": "真実の瞬間",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#bae6fd",
+    "summary": "ミステリー短編集。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-9-yftkx",
+    "title": "誇り高き週末",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#bae6fd",
+    "summary": "ミステリー作品。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-10-wj9gn",
+    "title": "卒業",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#bae6fd",
+    "summary": "青春の切なさを描く物語。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-11-8huba",
+    "title": "三毛猫ホームズの推理",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#1e40af",
+    "summary": "人気シリーズの記念すべき第一作。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-12-uz990",
+    "title": "三毛猫ホームズの狂死曲",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#1e40af",
+    "summary": "三毛猫ホームズシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-13-gh6oz",
+    "title": "三毛猫ホームズの恐怖館",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#1e40af",
+    "summary": "三毛猫ホームズシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-14-bpcgo",
+    "title": "三毛猫ホームズの騎士道",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#1e40af",
+    "summary": "三毛猫ホームズシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-15-28ely",
+    "title": "三毛猫ホームズのクリスマス",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#1e40af",
+    "summary": "三毛猫ホームズシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-16-5x9u1",
+    "title": "三毛猫ホームズの感傷旅行",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#1e40af",
+    "summary": "三毛猫ホームズシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-17-q6qjc",
+    "title": "三毛猫ホームズの劇場",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#bae6fd",
+    "summary": "三毛猫ホームズシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-18-iw23h",
+    "title": "地下鉄に乗って",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "文学・小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#ef4444",
+    "summary": "時空を超える感動的な物語。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "文学・小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-19-jk8zr",
+    "title": "吾輩も猫である",
+    "author": "赤川次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "ミステリー",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fefce8",
+    "summary": "猫を題材にしたミステリー短編集。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "ミステリー"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-20-9c28h",
+    "title": "新解さんの謎",
+    "author": "赤瀬川原平",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "エッセイ",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fefce8",
+    "summary": "辞書の読み方を巡る愉快な考察。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "エッセイ"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-21-fc9gs",
+    "title": "タタタタ旅の素",
+    "author": "阿川佐和子",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "エッセイ",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fefce8",
+    "summary": "旅にまつわる軽妙なエッセイ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "エッセイ"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-22-1tb63",
+    "title": "行きたくない",
+    "author": "阿川佐和子",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "エッセイ",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fefce8",
+    "summary": "人生の葛藤を描いたエッセイ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "エッセイ"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-23-p6gdk",
+    "title": "山のこんなくもが好きなくせに",
+    "author": "松本清張",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "文学・小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#f8fafc",
+    "summary": "文豪による独特の感性で綴られる一冊。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "文学・小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-24-qvrrf",
+    "title": "独り言が多くなる",
+    "author": "芥川龍之介",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "文学・小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fbcfe8",
+    "summary": "芥川龍之介の文学作品。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "文学・小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-25-h2ax8",
+    "title": "地獄変",
+    "author": "芥川龍之介",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "文学・小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fbcfe8",
+    "summary": "芸術と狂気を描く名作。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "文学・小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-26-jnmem",
+    "title": "わたし、定時で帰ります。",
+    "author": "朱野帰子",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#dcfce7",
+    "summary": "現代の働き方を問う仕事小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-27-9ht3r",
+    "title": "すかたん",
+    "author": "明野照葉",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fef08a",
+    "summary": "人間ドラマを描いた小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-28-7xu1s",
+    "title": "この部屋で君と",
+    "author": "朝井リョウ",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#fef2f2",
+    "summary": "若者の心理を描いた作品。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-29-ptlak",
+    "title": "スピードの3",
+    "author": "朝井リョウ",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#bae6fd",
+    "summary": "朝井リョウの青春小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-30-v747r",
+    "title": "世にも奇妙な君物語",
+    "author": "朝井リョウ",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#a5f3fc",
+    "summary": "奇妙な物語を集めた短編集。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-31-cbzju",
+    "title": "どうしても生きてる",
+    "author": "朝井リョウ",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#67e8f9",
+    "summary": "生きることをテーマにした作品。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-32-g7dpx",
+    "title": "阿佐ヶ谷姉妹ののほほんふたり暮らし",
+    "author": "阿佐ヶ谷姉妹",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "エッセイ",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#ccfbf1",
+    "summary": "人気の芸人によるほのぼのエッセイ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "エッセイ"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-33-29vfb",
+    "title": "終わらざる夏 上",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#f1f5f9",
+    "summary": "戦争と平和を問う壮大な歴史小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-34-1yrt4",
+    "title": "終わらざる夏 中",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#f1f5f9",
+    "summary": "戦争と平和を問う壮大な歴史小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-35-2y07r",
+    "title": "終わらざる夏 下",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#f1f5f9",
+    "summary": "戦争と平和を問う壮大な歴史小説。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-36-jtll0",
+    "title": "丘の上の馬鹿",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#f1f5f9",
+    "summary": "浅田次郎らしい人情味あふれる短編集。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-37-8maoa",
+    "title": "シェエラザード 上",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#a5f3fc",
+    "summary": "浅田次郎による歴史大作。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-38-wekio",
+    "title": "シェエラザード 下",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#a5f3fc",
+    "summary": "浅田次郎による歴史大作。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  },
+  {
+    "id": "book-1788828637780-39-zo32e",
+    "title": "プリズンホテル 1 夏",
+    "author": "浅田次郎",
+    "publisher": "",
+    "publishedYear": "",
+    "isbn": "",
+    "genre": "小説",
+    "shelfLocation": "メイン本棚",
+    "spineColor": "#d1d5db",
+    "summary": "大人気プリズンホテルシリーズ。",
+    "review": {
+      "rating": 0,
+      "comment": "",
+      "tags": [
+        "小説"
+      ],
+      "readingStatus": "unread",
+      "updatedAt": "2026-09-08T00:50:37.739Z"
+    },
+    "lending": {
+      "status": "available",
+      "history": []
+    },
+    "registeredVia": "scan",
+    "createdAt": "2026-09-08T00:50:37.780Z",
+    "updatedAt": "2026-09-08T00:50:37.780Z"
+  }
+]
