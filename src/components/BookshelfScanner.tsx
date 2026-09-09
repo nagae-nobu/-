@@ -5,6 +5,7 @@ import { SAMPLE_BOOKSHELVES, SampleBookshelf } from '../data/sampleBookshelfs';
 import { BookLookupModal } from './BookLookupModal';
 import { CorrectionKnowledgeModal } from './CorrectionKnowledgeModal';
 import { BookSplitModal } from './BookSplitModal';
+import { normalizeHorizontalText } from '../utils/textUtils';
 
 interface BookshelfScannerProps {
   onRegisterBooks: (books: Partial<Book>[]) => Promise<void>;
@@ -65,16 +66,29 @@ export const BookshelfScanner: React.FC<BookshelfScannerProps> = ({
   };
 
   const handleApplySplit = (originalTempId: string, book1: DetectedBook, book2: DetectedBook) => {
+    const normBook1: DetectedBook = {
+      ...book1,
+      title: normalizeHorizontalText(book1.title),
+      author: normalizeHorizontalText(book1.author),
+      publisher: normalizeHorizontalText(book1.publisher),
+    };
+    const normBook2: DetectedBook = {
+      ...book2,
+      title: normalizeHorizontalText(book2.title),
+      author: normalizeHorizontalText(book2.author),
+      publisher: normalizeHorizontalText(book2.publisher),
+    };
+
     setDetectedBooks(prev => {
       const idx = prev.findIndex(b => b.tempId === originalTempId);
-      if (idx === -1) return [...prev, book1, book2];
+      if (idx === -1) return [...prev, normBook1, normBook2];
       const next = [...prev];
-      next.splice(idx, 1, book1, book2);
+      next.splice(idx, 1, normBook1, normBook2);
       return next;
     });
 
-    setActiveHighlightId(book1.tempId);
-    const msg = `「#${splitTargetIndex + 1}」の画像を調整して2冊に分割し、スキャン結果に反映しました（#${splitTargetIndex + 1}: 『${book1.title}』、#${splitTargetIndex + 2}: 『${book2.title}』）。全体の書籍数が更新されました。`;
+    setActiveHighlightId(normBook1.tempId);
+    const msg = `「#${splitTargetIndex + 1}」の画像を調整して2冊に分割し、スキャン結果に反映しました（#${splitTargetIndex + 1}: 『${normBook1.title}』、#${splitTargetIndex + 2}: 『${normBook2.title}』）。全体の書籍数が更新されました。`;
     setSplitNotification(msg);
     setTimeout(() => setSplitNotification(null), 8000);
   };
@@ -325,17 +339,21 @@ export const BookshelfScanner: React.FC<BookshelfScannerProps> = ({
       } else {
         // Ensure box2d has sensible default positions if missing so overlay works
         const enriched = data.detectedBooks.map((b: DetectedBook, idx: number) => {
-          if (!b.box2d || b.box2d.length !== 4) {
+          let box2d = b.box2d;
+          if (!box2d || box2d.length !== 4) {
             // Calculate a horizontal spine placement across the shelf
             const total = data.detectedBooks.length;
             const widthPer = Math.min(100, Math.floor(800 / total));
             const startX = 60 + idx * widthPer;
-            return {
-              ...b,
-              box2d: [180, startX, 820, startX + widthPer - 10]
-            };
+            box2d = [180, startX, 820, startX + widthPer - 10];
           }
-          return b;
+          return {
+            ...b,
+            title: normalizeHorizontalText(b.title),
+            author: normalizeHorizontalText(b.author),
+            publisher: normalizeHorizontalText(b.publisher),
+            box2d
+          };
         });
         setDetectedBooks(enriched);
         // Record last scan timestamp for library audit prompt banner
@@ -426,9 +444,9 @@ export const BookshelfScanner: React.FC<BookshelfScannerProps> = ({
 
   const saveEdit = (tempId: string) => {
     const original = detectedBooks.find(b => b.tempId === tempId);
-    const newTitle = editTitle.trim() || (original ? original.title : '');
-    const newAuthor = editAuthor.trim() || (original ? original.author : '');
-    const newPublisher = editPublisher.trim();
+    const newTitle = normalizeHorizontalText(editTitle.trim() || (original ? original.title : ''));
+    const newAuthor = normalizeHorizontalText(editAuthor.trim() || (original ? original.author : ''));
+    const newPublisher = normalizeHorizontalText(editPublisher.trim());
     const newIsbn = editIsbn.trim() || (original ? original.isbn : '');
     const newYear = editPublishedYear.trim() || (original ? original.publishedYear : '');
     const newGenre = editGenre.trim() || (original ? original.genre : '');
@@ -907,83 +925,99 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
               </div>
             ) : selectedImage ? (
               /* Image Preview Box with Interactive Bounding Boxes */
-              <div className="relative rounded-lg overflow-hidden border border-[#E8E1D7] bg-[#F7F3EE] aspect-video flex items-center justify-center group select-none">
-                <img
-                  src={selectedImage}
-                  alt="本棚プレビュー"
-                  className="w-full h-full object-contain pointer-events-none"
-                />
+              <div className="relative rounded-lg overflow-hidden border border-[#E8E1D7] bg-[#F7F3EE] min-h-[240px] max-h-[65vh] flex items-center justify-center group select-none">
+                <div className="relative inline-flex items-center justify-center max-h-[65vh] max-w-full">
+                  <img
+                    src={selectedImage}
+                    alt="本棚プレビュー"
+                    className="max-h-[65vh] max-w-full w-auto h-auto object-contain pointer-events-none block"
+                  />
 
-                {/* Bounding Box Overlays */}
-                {showBoundingBoxes && detectedBooks.length > 0 && (
-                  <div className="absolute inset-0 pointer-events-auto">
-                    {detectedBooks.map((b, idx) => {
-                      if (!b.box2d || b.box2d.length !== 4) return null;
-                      const [ymin, xmin, ymax, xmax] = b.box2d;
-                      const top = `${ymin / 10}%`;
-                      const left = `${xmin / 10}%`;
-                      const height = `${(ymax - ymin) / 10}%`;
-                      const width = `${(xmax - xmin) / 10}%`;
-                      const isHighlighted = activeHighlightId === b.tempId;
-                      const isRegistered = registeredIds.has(b.tempId);
-                      const isFailed = Boolean(b.isOcrFailed || b.title.includes('OCR読み取り不可'));
+                  {/* Bounding Box Overlays */}
+                  {showBoundingBoxes && detectedBooks.length > 0 && (
+                    <div className="absolute inset-0 pointer-events-auto">
+                      {detectedBooks.map((b, idx) => {
+                        if (!b.box2d || b.box2d.length !== 4) return null;
+                        const [ymin, xmin, ymax, xmax] = b.box2d;
+                        const top = `${ymin / 10}%`;
+                        const left = `${xmin / 10}%`;
+                        const height = `${(ymax - ymin) / 10}%`;
+                        const width = `${(xmax - xmin) / 10}%`;
+                        const isHighlighted = activeHighlightId === b.tempId;
+                        const isRegistered = registeredIds.has(b.tempId);
+                        const isFailed = Boolean(b.isOcrFailed || b.title.includes('OCR読み取り不可'));
+                        const displayTitle = normalizeHorizontalText(b.title);
+                        const displayAuthor = normalizeHorizontalText(b.author);
 
-                      return (
-                        <div
-                          key={`overlay-${b.tempId}`}
-                          onClick={() => handleSelectFromOverlay(b.tempId)}
-                          onMouseEnter={() => setActiveHighlightId(b.tempId)}
-                          onMouseLeave={() => setActiveHighlightId(null)}
-                          className={`absolute border-2 rounded transition-all cursor-pointer flex flex-col justify-between ${
-                            isHighlighted
-                              ? 'border-[#2563eb] bg-[#2563eb]/20 shadow-lg ring-2 ring-white z-20'
-                              : isFailed
-                              ? 'border-[#D97706] bg-[#FEF3C7]/40 ring-1 ring-[#FCD34D] z-10'
-                              : isRegistered
-                              ? 'border-[#059669] bg-[#059669]/10 z-10'
-                              : 'border-[#5D6D5F] hover:border-[#2563eb] bg-[#5D6D5F]/15 hover:bg-[#2563eb]/20 z-10'
-                          }`}
-                          style={{ top, left, width, height }}
-                          title={`#${idx + 1}: ${b.title} / 著者: ${b.author}${isFailed ? ' (⚠️ OCR読み取り不可)' : ''}`}
-                        >
-                          {/* Number badge at top */}
-                          <div className="flex items-center justify-between p-0.5">
-                            <span className={`text-[9px] font-bold px-1 py-0.2 rounded shadow-xs text-white ${
-                              isHighlighted ? 'bg-[#2563eb]' : isFailed ? 'bg-[#D97706]' : isRegistered ? 'bg-[#059669]' : 'bg-[#5D6D5F]'
-                            }`}>
-                              #{idx + 1}
-                            </span>
-                            {isFailed && (
-                              <span className="text-[9px] font-bold text-[#92400E] bg-[#FEF3C7] px-1 rounded shadow-2xs">
-                                ⚠️ 不可
+                        return (
+                          <div
+                            key={`overlay-${b.tempId}`}
+                            onClick={() => handleSelectFromOverlay(b.tempId)}
+                            onMouseEnter={() => setActiveHighlightId(b.tempId)}
+                            onMouseLeave={() => setActiveHighlightId(null)}
+                            className={`absolute border-2 rounded transition-all cursor-pointer flex flex-col justify-between ${
+                              isHighlighted
+                                ? 'border-[#2563eb] bg-[#2563eb]/20 shadow-lg ring-2 ring-white z-30'
+                                : isFailed
+                                ? 'border-[#D97706] bg-[#FEF3C7]/40 ring-1 ring-[#FCD34D] z-10'
+                                : isRegistered
+                                ? 'border-[#059669] bg-[#059669]/10 z-10'
+                                : 'border-[#5D6D5F] hover:border-[#2563eb] bg-[#5D6D5F]/15 hover:bg-[#2563eb]/20 z-10'
+                            }`}
+                            style={{ top, left, width, height }}
+                            title={`#${idx + 1}: ${displayTitle} / 著者: ${displayAuthor}${isFailed ? ' (⚠️ OCR読み取り不可)' : ''}`}
+                          >
+                            {/* Number badge at top */}
+                            <div className="flex items-center justify-between p-0.5">
+                              <span className={`text-[9px] font-bold px-1 py-0.2 rounded shadow-xs text-white ${
+                                isHighlighted ? 'bg-[#2563eb]' : isFailed ? 'bg-[#D97706]' : isRegistered ? 'bg-[#059669]' : 'bg-[#5D6D5F]'
+                              }`}>
+                                #{idx + 1}
                               </span>
+                              {isFailed && (
+                                <span className="text-[9px] font-bold text-[#92400E] bg-[#FEF3C7] px-1 rounded shadow-2xs">
+                                  ⚠️ 不可
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Quick details tooltip on highlight - floating horizontally above or below */}
+                            {isHighlighted && (
+                              <div
+                                className="absolute left-1/2 -translate-x-1/2 bottom-full mb-1.5 w-48 sm:w-56 bg-[#1e293b]/95 text-white text-[10px] p-2 rounded-lg leading-tight shadow-xl backdrop-blur-xs flex flex-col gap-1.5 pointer-events-auto z-40"
+                                style={{ writingMode: 'horizontal-tb' }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="flex items-center justify-between border-b border-white/20 pb-0.5">
+                                  <span className="text-[9px] text-blue-300 font-bold">#{idx + 1} 書籍情報</span>
+                                  {isFailed && <span className="text-[8px] text-amber-300 font-bold">⚠️ OCR不可</span>}
+                                </div>
+                                <p className="font-bold text-xs text-white leading-snug break-words" style={{ writingMode: 'horizontal-tb' }}>
+                                  {displayTitle}
+                                </p>
+                                <p className="opacity-80 text-[10px] text-gray-300 truncate" style={{ writingMode: 'horizontal-tb' }}>
+                                  {displayAuthor} {b.publisher ? `· ${normalizeHorizontalText(b.publisher)}` : ''}
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openSplitModalForBook(b, idx);
+                                  }}
+                                  className="w-full py-1 px-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded text-[10px] font-bold cursor-pointer flex items-center justify-center space-x-1 shadow-xs transition-colors"
+                                  title="画像を調整してこの枠を2冊に分割"
+                                >
+                                  <Scissors className="w-3 h-3" />
+                                  <span>2冊に分割</span>
+                                </button>
+                              </div>
                             )}
                           </div>
-
-                          {/* Quick details tooltip on highlight */}
-                          {isHighlighted && (
-                            <div className="bg-[#1e293b]/95 text-white text-[9px] p-1.5 rounded-sm mx-0.5 mb-1 leading-tight shadow-md backdrop-blur-xs flex flex-col gap-1 pointer-events-auto">
-                              <p className="font-bold truncate">{b.title}</p>
-                              <p className="opacity-80 truncate text-[8px]">{b.author}</p>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openSplitModalForBook(b, idx);
-                                }}
-                                className="w-full py-0.5 px-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[8.5px] font-bold cursor-pointer flex items-center justify-center space-x-1 shadow-xs"
-                                title="画像を調整してこの枠を2冊に分割"
-                              >
-                                <Scissors className="w-2.5 h-2.5" />
-                                <span>2冊に分割</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
 
                 {/* Change image hover control */}
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 z-30">
@@ -1501,8 +1535,11 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
                                       ⚠️ OCR読み取り不可
                                     </span>
                                   )}
-                                  <h4 className={`text-xs font-bold font-serif leading-snug ${isFailed ? 'text-[#92400E]' : 'text-[#3E362E]'}`}>
-                                    {item.title}
+                                  <h4 
+                                    className={`text-xs font-bold font-serif leading-snug break-words ${isFailed ? 'text-[#92400E]' : 'text-[#3E362E]'}`}
+                                    style={{ writingMode: 'horizontal-tb' }}
+                                  >
+                                    {normalizeHorizontalText(item.title)}
                                   </h4>
                                 </div>
                                 <div className="flex items-center space-x-1 shrink-0">
@@ -1573,10 +1610,10 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
                               </div>
 
                               {/* Author & Publisher & Year & Genre */}
-                              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-[#786C5E] mt-1">
-                                <span>著者: <strong className="text-[#3E362E]">{item.author}</strong></span>
+                              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-[#786C5E] mt-1" style={{ writingMode: 'horizontal-tb' }}>
+                                <span>著者: <strong className="text-[#3E362E]">{normalizeHorizontalText(item.author)}</strong></span>
                                 {item.publisher && (
-                                  <span>出版社: <strong className="text-[#3E362E]">{item.publisher}</strong></span>
+                                  <span>出版社: <strong className="text-[#3E362E]">{normalizeHorizontalText(item.publisher)}</strong></span>
                                 )}
                                 {item.publishedYear && (
                                   <span>発行: {item.publishedYear}年</span>

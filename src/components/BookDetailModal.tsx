@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Bookmark, Edit3, Check, Trash2, MessageSquare, Copy, ExternalLink, ClipboardCheck, AlertTriangle, CheckCircle2, Search, Wand2 } from 'lucide-react';
 import { Book, ReadingStatus, AuditStatus, BookLookupResult } from '../types';
 import { BookLookupModal } from './BookLookupModal';
+import { normalizeHorizontalText } from '../utils/textUtils';
 
 interface BookDetailModalProps {
   book: Book;
@@ -161,11 +162,11 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   </span>
                 )}
               </div>
-              <h2 className="text-base sm:text-lg font-bold text-[#3E362E] font-serif mt-1 line-clamp-2 leading-snug">
-                {title}
+              <h2 className="text-base sm:text-lg font-bold text-[#3E362E] font-serif mt-1 line-clamp-2 leading-snug break-words" style={{ writingMode: 'horizontal-tb' }}>
+                {normalizeHorizontalText(title)}
               </h2>
-              <p className="text-xs text-[#786C5E] mt-0.5">
-                {author} {publisher ? `· ${publisher}` : ''}
+              <p className="text-xs text-[#786C5E] mt-0.5 break-words" style={{ writingMode: 'horizontal-tb' }}>
+                {normalizeHorizontalText(author)} {publisher ? `· ${normalizeHorizontalText(publisher)}` : ''}
               </p>
 
               {/* ISBN & Meta Pill */}

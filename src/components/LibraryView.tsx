@@ -5,6 +5,7 @@ import { BookCard } from './BookCard';
 import { AuditPromptBanner } from './AuditPromptBanner';
 import { BatchIsbnLookupModal } from './BatchIsbnLookupModal';
 import { exportBooksToCSV, exportShelfStatsToCSV, calculateShelfAuditStats } from '../utils/csvExport';
+import { normalizeHorizontalText } from '../utils/textUtils';
 
 interface LibraryViewProps {
   books: Book[];
@@ -37,6 +38,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const [selectedShelf, setSelectedShelf] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date_desc' | 'date_asc' | 'rating_desc' | 'title_asc'>('date_desc');
   const [displayMode, setDisplayMode] = useState<'grid' | 'shelf' | 'table'>('grid');
+  const [spineTextOrientation, setSpineTextOrientation] = useState<'horizontal' | 'vertical'>('horizontal');
   const [isBatchIsbnModalOpen, setIsBatchIsbnModalOpen] = useState<boolean>(false);
 
   // Books without ISBN count
@@ -413,11 +415,24 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       ) : displayMode === 'shelf' ? (
         /* Visual Bookshelf Display (Spines Standing on Wood Shelves) */
         <div className="bg-[#F7F3EE] rounded-2xl border border-[#D9C5B2] p-6 shadow-xs space-y-8">
-          <div className="flex items-center justify-between pb-2 border-b border-[#D9C5B2]">
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#D9C5B2]">
             <h3 className="text-xs font-bold text-[#3E362E] font-serif tracking-wider uppercase flex items-center space-x-1.5">
               <span>◆ 本棚ビジュアルビュー（背表紙一覧） ◆</span>
             </h3>
-            <span className="text-xs text-[#786C5E]">本をクリックすると詳細・現物情報補正が開きます</span>
+            <div className="flex items-center space-x-3 text-xs">
+              <div className="flex items-center space-x-1.5 bg-white px-2 py-0.5 rounded-md border border-[#D9C5B2] shadow-2xs">
+                <span className="text-[#786C5E] text-[11px]">背表紙文字:</span>
+                <button
+                  type="button"
+                  onClick={() => setSpineTextOrientation(prev => prev === 'horizontal' ? 'vertical' : 'horizontal')}
+                  className="text-[11px] font-bold text-[#5D6D5F] hover:text-[#3E362E] cursor-pointer"
+                  title="文字の向き（横書き/縦書き）を切り替えます"
+                >
+                  {spineTextOrientation === 'horizontal' ? '横書き (標準)' : '縦書き'}
+                </button>
+              </div>
+              <span className="text-xs text-[#786C5E] hidden sm:inline">本をクリックすると詳細が開きます</span>
+            </div>
           </div>
 
           {/* Group books in rows of ~8-10 for shelf representation */}
@@ -431,7 +446,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                     {rowBooks.map((book, bIdx) => {
                       const isFailed = book.isOcrFailed || book.auditStatus === 'ocr_failed' || book.title.includes('OCR読み取り不可');
                       const spineHeight = 180 + ((bIdx * 17) % 50); // Natural varied height
-                      const spineWidth = 36 + ((bIdx * 7) % 18);
+                      const spineWidth = spineTextOrientation === 'horizontal' ? 44 + ((bIdx * 6) % 16) : 36 + ((bIdx * 7) % 18);
+                      const cleanTitle = normalizeHorizontalText(book.title);
 
                       return (
                         <div
@@ -445,19 +461,28 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                           className={`relative rounded-t-xs rounded-b-[1px] shadow-sm hover:shadow-lg hover:-translate-y-2 transition-all duration-200 cursor-pointer flex flex-col justify-between py-3 px-1 border-t border-r border-l border-black/20 shrink-0 select-none group ${
                             isFailed ? 'ring-2 ring-[#FCD34D]' : ''
                           }`}
-                          title={`${book.title} / ${book.author}${isFailed ? ' (⚠️ OCR読み取り不可: 要現物確認)' : ''}`}
+                          title={`${cleanTitle} / ${book.author}${isFailed ? ' (⚠️ OCR読み取り不可: 要現物確認)' : ''}`}
                         >
                           {/* Spine top embossed line */}
                           <div className="w-full h-1 bg-white/20 rounded-xs" />
 
-                          {/* Vertical title text */}
-                          <div className="flex-1 flex items-center justify-center overflow-hidden py-1">
-                            <span
-                              className="text-white font-bold text-[11px] font-serif tracking-tight leading-tight writing-vertical"
-                              style={{ writingMode: 'vertical-rl' }}
-                            >
-                              {book.title}
-                            </span>
+                          {/* Title text (Horizontal by default, or Vertical) */}
+                          <div className="flex-1 flex items-center justify-center overflow-hidden py-1 relative">
+                            {spineTextOrientation === 'horizontal' ? (
+                              <span
+                                className="text-white font-bold text-[10px] font-sans tracking-normal leading-tight -rotate-90 whitespace-nowrap select-none max-w-[150px] truncate block text-center"
+                                style={{ writingMode: 'horizontal-tb' }}
+                              >
+                                {cleanTitle}
+                              </span>
+                            ) : (
+                              <span
+                                className="text-white font-bold text-[11px] font-serif tracking-tight leading-tight writing-vertical select-none"
+                                style={{ writingMode: 'vertical-rl' }}
+                              >
+                                {cleanTitle}
+                              </span>
+                            )}
                           </div>
 
                           {/* Spine bottom warning icon or tag */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Star, AlertTriangle, CheckCircle2, MessageSquare, Edit3, Trash2, Bookmark } from 'lucide-react';
 import { Book, ReadingStatus } from '../types';
+import { normalizeHorizontalText } from '../utils/textUtils';
 
 interface BookCardProps {
   book: Book;
@@ -18,6 +19,9 @@ export const BookCard: React.FC<BookCardProps> = ({
   onToggleOcrFailed
 }) => {
   const isOcrFailed = book.isOcrFailed || book.auditStatus === 'ocr_failed' || book.title.includes('OCR読み取り不可');
+  const cleanTitle = normalizeHorizontalText(book.title);
+  const cleanAuthor = normalizeHorizontalText(book.author);
+  const cleanPublisher = normalizeHorizontalText(book.publisher);
 
   const readingStatusMap: Record<ReadingStatus, { label: string; color: string; bg: string }> = {
     unread: { label: '未読', color: 'text-[#6E5F52]', bg: 'bg-[#F7F3EE] border-[#E8E1D7]' },
@@ -63,17 +67,18 @@ export const BookCard: React.FC<BookCardProps> = ({
           {/* Book Title */}
           <h3
             onClick={() => onSelect(book)}
-            className={`text-sm font-bold font-serif mt-2 line-clamp-2 cursor-pointer transition-colors leading-snug ${
+            className={`text-sm font-bold font-serif mt-2 line-clamp-2 cursor-pointer transition-colors leading-snug break-words ${
               isOcrFailed ? 'text-[#92400E] hover:text-[#B45309]' : 'text-[#3E362E] hover:text-[#5D6D5F]'
             }`}
-            title={book.title}
+            style={{ writingMode: 'horizontal-tb' }}
+            title={cleanTitle}
           >
-            {book.title}
+            {cleanTitle}
           </h3>
 
           {/* Author & Publisher */}
-          <p className="text-xs text-[#786C5E] mt-1 line-clamp-1">
-            {book.author} {book.publisher ? `· ${book.publisher}` : ''}
+          <p className="text-xs text-[#786C5E] mt-1 line-clamp-1 break-words" style={{ writingMode: 'horizontal-tb' }}>
+            {cleanAuthor} {cleanPublisher ? `· ${cleanPublisher}` : ''}
           </p>
 
           {/* ISBN & Year Badge */}

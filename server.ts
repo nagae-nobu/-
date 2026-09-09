@@ -1498,6 +1498,22 @@ async function callGeminiWithFallback(ai: GoogleGenAI, payload: any): Promise<an
 }
 
 // POST scan bookshelf using Gemini Multimodal Vision with High-Precision OCR & Individual Detection
+// Utility to normalize vertical/newline-broken text from OCR into clean single-line horizontal text
+function normalizeHorizontalText(text: any): string {
+  if (!text || typeof text !== 'string') return '';
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^[`"'\s]+|[`"'\s]+$/g, '');
+  // When newline sits between Japanese characters, join directly without space
+  cleaned = cleaned.replace(/([一-龠ぁ-んァ-ヶ々〆ヶ])\r?\n+([一-龠ぁ-んァ-ヶ々〆ヶ])/g, '$1$2');
+  // Any remaining newlines become space
+  cleaned = cleaned.replace(/[\r\n]+/g, ' ');
+  // Remove artificial spaces between consecutive Japanese characters (from vertical spine OCR)
+  cleaned = cleaned.replace(/([一-龠ぁ-んァ-ヶ々〆ヶ])\s+([一-龠ぁ-んァ-ヶ々〆ヶ])/g, '$1$2');
+  cleaned = cleaned.replace(/([一-龠ぁ-んァ-ヶ々〆ヶ])\s+([一-龠ぁ-んァ-ヶ々〆ヶ])/g, '$1$2');
+  cleaned = cleaned.replace(/\s{2,}/g, ' ');
+  return cleaned.trim();
+}
+
 app.post("/api/scan-bookshelf", async (req, res) => {
   try {
     const { imageBase64, mimeType = "image/jpeg" } = req.body;
@@ -1532,8 +1548,9 @@ app.post("/api/scan-bookshelf", async (req, res) => {
 
 【抽出・OCRの重要ルール】
 1. 個別認識（Multiple Books Detection）: 本棚に並んでいる本を1冊ずつ分離し、重複や結合を避けてそれぞれ個別のアイテムとして抽出してください。
-2. タイトル（title）: 背表紙や表紙に印字された書名を正確にOCR読み取り。サブタイトルや巻数（上・下巻、第1巻、1, 2など）も含めてください。縦書き・横書きの両方に注意深く対応してください。
-3. 著者名（author）: 著者・編者・訳者名を正確に抽出。読み取れない場合は「著者不明」としてください。
+2. タイトル（title）: 背表紙や表紙に印字された書名を正確にOCR読み取り。サブタイトルや巻数（上・下巻、第1巻、1, 2など）も含めてください。
+   【重要・横書きでの出力厳守】: 日本の書籍の背表紙が「縦書き」であっても、出力するtitleは改行コード（\\n）や1文字ごとのスペースで縦書き化せず、必ず1行の通常の「横書き文字列」（例:「吾輩は猫である」「走れメロス」のように繋がった1行の文字列）として出力してください。
+3. 著者名（author）: 著者・編者・訳者名を正確に抽出。背表紙が縦書きの場合でも改行コードを含めず必ず1行の横書き文字列としてください。読み取れない場合は「著者不明」。
 4. 出版社（publisher）: 出版社名やレーベル（オライリー、岩波文庫、講談社、集英社、早川書房、SBクリエイティブ、日経BPなど）が読み取れれば記載。不明なら空文字。
 5. ISBNコード（isbn）:
    - 背表紙の上部・下部、バーコード付近、表紙・裏表紙、スリップなどに印字されたISBNコード（「ISBN 978-4-...」や「9784...」などの10桁または13桁のコード）を最優先でOCR読み取りしてください。
@@ -1630,11 +1647,15 @@ app.post("/api/scan-bookshelf", async (req, res) => {
       const isFailed = item.isOcrFailed === true ||
         (item.title && (item.title.includes("OCR読み取り不可") || item.title.includes("読み取り不可") || item.title.includes("判読不能")));
 
+      const cleanTitle = isFailed ? "OCR読み取り不可" : normalizeHorizontalText(item.title || "タイトル不明");
+      const cleanAuthor = normalizeHorizontalText(item.author || "著者不明");
+      const cleanPublisher = normalizeHorizontalText(item.publisher || "");
+
       return {
         tempId: `detected-${Date.now()}-${idx}`,
-        title: isFailed ? "OCR読み取り不可" : (item.title || "タイトル不明"),
-        author: item.author || "著者不明",
-        publisher: item.publisher || "",
+        title: cleanTitle,
+        author: cleanAuthor,
+        publisher: cleanPublisher,
         isbn: item.isbn ? String(item.isbn).trim() : "",
         publishedYear: item.publishedYear ? String(item.publishedYear).trim() : "",
         genre: item.genre || "一般",
@@ -1747,6 +1768,7 @@ app.post("/api/ocr-split-books", async (req, res) => {
 
 各本について以下を抽出してください：
 1. title: 背表紙のタイトル（判読できない場合は「OCR読み取り不可」）
+   ※【重要・横書き厳守】: 背表紙が「縦書き」の場合でも、titleおよびauthorは絶対に改行コード（\n）や文字ごとのスペースを入れず、必ず通常の「横書きの1行の文字列」（例:「吾輩は猫である」「人間失格」）として出力してください。
 2. author: 著者名（不明なら「著者不明」）
 3. publisher: 出版社（不明なら空文字）
 4. isbn: 読み取れるISBNコード（13桁または10桁、不明なら空文字）
@@ -1762,7 +1784,7 @@ app.post("/api/ocr-split-books", async (req, res) => {
     const requestPayload = {
       contents: { parts },
       config: {
-        systemInstruction: "分割された2冊の書籍背表紙画像を個別にOCR解析し、それぞれの書誌情報をJSON配列で抽出するアシスタントです。",
+        systemInstruction: "分割された2冊の書籍背表紙画像を個別にOCR解析し、それぞれの書誌情報をJSON配列で抽出するアシスタントです。日本の縦書き背表紙の文字も必ず横書きの1行文字列として出力してください。",
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.ARRAY,
@@ -1793,9 +1815,17 @@ app.post("/api/ocr-split-books", async (req, res) => {
       parsed = [];
     }
 
+    // Sanitize and ensure horizontal text
+    const cleanedBooks = Array.isArray(parsed) ? parsed.map(b => ({
+      ...b,
+      title: normalizeHorizontalText(b.title || ""),
+      author: normalizeHorizontalText(b.author || "著者不明"),
+      publisher: normalizeHorizontalText(b.publisher || "")
+    })) : [];
+
     res.json({
       success: true,
-      books: parsed
+      books: cleanedBooks
     });
   } catch (err: any) {
     console.error("Split OCR failed:", err);

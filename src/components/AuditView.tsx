@@ -15,6 +15,7 @@ import {
   Filter
 } from 'lucide-react';
 import { exportBooksToCSV, exportShelfStatsToCSV, calculateShelfAuditStats, ShelfAuditStats } from '../utils/csvExport';
+import { normalizeHorizontalText } from '../utils/textUtils';
 
 interface AuditViewProps {
   books: Book[];
@@ -712,11 +713,11 @@ export const AuditView: React.FC<AuditViewProps> = ({
                                 </span>
                               )}
                             </div>
-                            <h4 className="text-sm font-bold text-[#3E362E] font-serif mt-1 truncate" title={book.title}>
-                              {book.title}
+                            <h4 className="text-sm font-bold text-[#3E362E] font-serif mt-1 truncate break-words" style={{ writingMode: 'horizontal-tb' }} title={normalizeHorizontalText(book.title)}>
+                              {normalizeHorizontalText(book.title)}
                             </h4>
-                            <p className="text-xs text-[#786C5E] truncate">
-                              著者: {book.author || '不明'} {book.publisher ? `· ${book.publisher}` : ''}
+                            <p className="text-xs text-[#786C5E] truncate break-words" style={{ writingMode: 'horizontal-tb' }}>
+                              著者: {normalizeHorizontalText(book.author) || '不明'} {book.publisher ? `· ${normalizeHorizontalText(book.publisher)}` : ''}
                             </p>
                           </div>
                         </div>
