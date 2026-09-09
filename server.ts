@@ -1690,6 +1690,119 @@ app.post("/api/scan-bookshelf", async (req, res) => {
   }
 });
 
+// POST /api/ocr-split-books
+// Takes two cropped spine image base64 strings and performs high-precision OCR on both
+app.post("/api/ocr-split-books", async (req, res) => {
+  try {
+    const {
+      book1ImageBase64,
+      book2ImageBase64,
+      originalTitle = "",
+      originalAuthor = "",
+      originalPublisher = ""
+    } = req.body;
+
+    const ai = getGeminiClient();
+    if (!ai) {
+      return res.status(500).json({
+        error: "GEMINI_API_KEY が設定されていません。AI StudioのSecretsまたは環境変数を確認してください。"
+      });
+    }
+
+    const clean1 = book1ImageBase64 ? book1ImageBase64.replace(/^data:image\/[a-zA-Z0-9+]+;base64,/, "") : null;
+    const clean2 = book2ImageBase64 ? book2ImageBase64.replace(/^data:image\/[a-zA-Z0-9+]+;base64,/, "") : null;
+
+    if (!clean1 && !clean2) {
+      return res.status(400).json({ error: "分割画像のデータがありません" });
+    }
+
+    const parts: any[] = [];
+    if (clean1) {
+      parts.push({ text: "【1冊目（左側の本）の背表紙切り出し画像】:" });
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: clean1,
+        }
+      });
+    }
+    if (clean2) {
+      parts.push({ text: "【2冊目（右側の本）の背表紙切り出し画像】:" });
+      parts.push({
+        inlineData: {
+          mimeType: "image/jpeg",
+          data: clean2,
+        }
+      });
+    }
+
+    const promptText = `本棚スキャンにおいて、本来2冊ある書籍が1冊として誤結合されて検出されたため、ユーザーが画像を2つに分割しました。
+提供された2つの画像（左側の本、右側の本）の背表紙から、それぞれの書籍情報を高精度にOCR解析してください。
+
+【元の参考情報（1冊として検出されていた際の情報）】
+・元タイトル: ${originalTitle}
+・元著者: ${originalAuthor}
+・元出版社: ${originalPublisher}
+※もし元のタイトルが「〇〇 上・下」や「〇〇 1・2」のような2分冊であったり、シリーズ本、あるいは全く別の隣り合う本である場合があります。各画像の文字を独立して正確に読んでください。
+
+各本について以下を抽出してください：
+1. title: 背表紙のタイトル（判読できない場合は「OCR読み取り不可」）
+2. author: 著者名（不明なら「著者不明」）
+3. publisher: 出版社（不明なら空文字）
+4. isbn: 読み取れるISBNコード（13桁または10桁、不明なら空文字）
+5. publishedYear: 出版年
+6. genre: ジャンル
+7. spineColor: HEXカラーコード
+8. isOcrFailed: 文字が読めない場合 true
+
+必ず [ { ...book1 }, { ...book2 } ] の2つの要素を含むJSON配列で出力してください。`;
+
+    parts.push({ text: promptText });
+
+    const requestPayload = {
+      contents: { parts },
+      config: {
+        systemInstruction: "分割された2冊の書籍背表紙画像を個別にOCR解析し、それぞれの書誌情報をJSON配列で抽出するアシスタントです。",
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              title: { type: Type.STRING },
+              author: { type: Type.STRING },
+              publisher: { type: Type.STRING },
+              isbn: { type: Type.STRING },
+              publishedYear: { type: Type.STRING },
+              genre: { type: Type.STRING },
+              spineColor: { type: Type.STRING },
+              isOcrFailed: { type: Type.BOOLEAN }
+            },
+            required: ["title", "author"]
+          }
+        }
+      }
+    };
+
+    const response = await callGeminiWithFallback(ai, requestPayload);
+    const textOutput = response.text || "[]";
+    let parsed: any[] = [];
+    try {
+      parsed = JSON.parse(textOutput);
+    } catch {
+      parsed = [];
+    }
+
+    res.json({
+      success: true,
+      books: parsed
+    });
+  } catch (err: any) {
+    console.error("Split OCR failed:", err);
+    res.status(500).json({ error: err.message || "2冊の分割OCR処理に失敗しました" });
+  }
+});
+
 // Setup Vite or Static File Serving
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {

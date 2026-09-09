@@ -262,6 +262,7 @@ export default function App() {
               <AuditView
                 books={books}
                 onSelectBook={(book) => setSelectedBookForDetail(book)}
+                onUpdateBook={handleUpdateBook}
                 onToggleOcrFailed={handleToggleOcrFailed}
                 onNavigateToScan={() => setActiveTab('scan')}
               />

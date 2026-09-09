@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Upload, Check, Trash2, Edit2, AlertTriangle, Sparkles, BookOpen, Layers, Info, RefreshCw, Copy, CheckCheck, ExternalLink, Eye, EyeOff, Hash, ArrowRight, Search, BrainCircuit, Wand2 } from 'lucide-react';
+import { Camera, Upload, Check, Trash2, Edit2, AlertTriangle, Sparkles, BookOpen, Layers, Info, RefreshCw, Copy, CheckCheck, ExternalLink, Eye, EyeOff, Hash, ArrowRight, Search, BrainCircuit, Wand2, Scissors } from 'lucide-react';
 import { DetectedBook, Book, BookLookupResult } from '../types';
 import { SAMPLE_BOOKSHELVES, SampleBookshelf } from '../data/sampleBookshelfs';
 import { BookLookupModal } from './BookLookupModal';
 import { CorrectionKnowledgeModal } from './CorrectionKnowledgeModal';
+import { BookSplitModal } from './BookSplitModal';
 
 interface BookshelfScannerProps {
   onRegisterBooks: (books: Partial<Book>[]) => Promise<void>;
@@ -50,6 +51,33 @@ export const BookshelfScanner: React.FC<BookshelfScannerProps> = ({
   const [learnedCount, setLearnedCount] = useState<number>(0);
   const [isBulkLookingUp, setIsBulkLookingUp] = useState<boolean>(false);
   const [bulkLookupMessage, setBulkLookupMessage] = useState<string | null>(null);
+
+  // Book Split Modal state (画像調整して2冊に分割)
+  const [splitModalOpen, setSplitModalOpen] = useState<boolean>(false);
+  const [splitTargetBook, setSplitTargetBook] = useState<DetectedBook | null>(null);
+  const [splitTargetIndex, setSplitTargetIndex] = useState<number>(0);
+  const [splitNotification, setSplitNotification] = useState<string | null>(null);
+
+  const openSplitModalForBook = (book: DetectedBook, index: number) => {
+    setSplitTargetBook(book);
+    setSplitTargetIndex(index);
+    setSplitModalOpen(true);
+  };
+
+  const handleApplySplit = (originalTempId: string, book1: DetectedBook, book2: DetectedBook) => {
+    setDetectedBooks(prev => {
+      const idx = prev.findIndex(b => b.tempId === originalTempId);
+      if (idx === -1) return [...prev, book1, book2];
+      const next = [...prev];
+      next.splice(idx, 1, book1, book2);
+      return next;
+    });
+
+    setActiveHighlightId(book1.tempId);
+    const msg = `「#${splitTargetIndex + 1}」の画像を調整して2冊に分割し、スキャン結果に反映しました（#${splitTargetIndex + 1}: 『${book1.title}』、#${splitTargetIndex + 2}: 『${book2.title}』）。全体の書籍数が更新されました。`;
+    setSplitNotification(msg);
+    setTimeout(() => setSplitNotification(null), 8000);
+  };
 
   // Camera stream
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
@@ -934,9 +962,21 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
 
                           {/* Quick details tooltip on highlight */}
                           {isHighlighted && (
-                            <div className="bg-[#1e293b]/90 text-white text-[9px] p-1 rounded-sm mx-0.5 mb-1 leading-tight shadow-md backdrop-blur-xs pointer-events-none truncate">
+                            <div className="bg-[#1e293b]/95 text-white text-[9px] p-1.5 rounded-sm mx-0.5 mb-1 leading-tight shadow-md backdrop-blur-xs flex flex-col gap-1 pointer-events-auto">
                               <p className="font-bold truncate">{b.title}</p>
-                              <p className="opacity-80 truncate">{b.author}</p>
+                              <p className="opacity-80 truncate text-[8px]">{b.author}</p>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openSplitModalForBook(b, idx);
+                                }}
+                                className="w-full py-0.5 px-1 bg-blue-600 hover:bg-blue-500 text-white rounded text-[8.5px] font-bold cursor-pointer flex items-center justify-center space-x-1 shadow-xs"
+                                title="画像を調整してこの枠を2冊に分割"
+                              >
+                                <Scissors className="w-2.5 h-2.5" />
+                                <span>2冊に分割</span>
+                              </button>
                             </div>
                           )}
                         </div>
@@ -1181,6 +1221,23 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
               </div>
             )}
 
+            {/* Book Split Notification Banner */}
+            {splitNotification && (
+              <div className="mt-3 p-3 bg-[#EFF6FF] border border-blue-200 rounded-lg flex items-center justify-between text-xs text-blue-900 animate-in fade-in">
+                <div className="flex items-center space-x-2">
+                  <Scissors className="w-4 h-4 text-blue-600 shrink-0" />
+                  <span className="font-medium">{splitNotification}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSplitNotification(null)}
+                  className="text-blue-500 hover:text-blue-800 font-bold px-2 py-0.5 cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             {/* Detection List Controls */}
             {detectedBooks.length > 0 && (
               <div className="space-y-2 py-2 border-b border-[#EFE9E0] text-xs text-[#786C5E]">
@@ -1404,21 +1461,34 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
                                   className="w-full px-2.5 py-1 bg-[#FDFBF7] border border-[#D9C5B2] rounded text-[#3E362E]"
                                 />
                               </div>
-                              <div className="flex justify-end space-x-2 pt-1">
+                              <div className="flex items-center justify-between pt-1">
                                 <button
                                   type="button"
-                                  onClick={() => setEditingId(null)}
-                                  className="px-2.5 py-1 text-xs text-[#786C5E] hover:text-[#3E362E] cursor-pointer"
+                                  onClick={() => {
+                                    setEditingId(null);
+                                    openSplitModalForBook(item, idx);
+                                  }}
+                                  className="text-xs text-[#2563eb] hover:text-blue-800 font-bold flex items-center space-x-1 cursor-pointer"
                                 >
-                                  キャンセル
+                                  <Scissors className="w-3.5 h-3.5" />
+                                  <span>画像を調整して2冊に分割</span>
                                 </button>
-                                <button
-                                  type="button"
-                                  onClick={() => saveEdit(item.tempId)}
-                                  className="px-3 py-1 bg-[#5D6D5F] text-white text-xs font-semibold rounded hover:bg-[#4D5C4F] cursor-pointer shadow-xs"
-                                >
-                                  保存
-                                </button>
+                                <div className="flex space-x-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditingId(null)}
+                                    className="px-2.5 py-1 text-xs text-[#786C5E] hover:text-[#3E362E] cursor-pointer"
+                                  >
+                                    キャンセル
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => saveEdit(item.tempId)}
+                                    className="px-3 py-1 bg-[#5D6D5F] text-white text-xs font-semibold rounded hover:bg-[#4D5C4F] cursor-pointer shadow-xs"
+                                  >
+                                    保存
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           ) : (
@@ -1466,6 +1536,15 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
                                       </span>
                                     </>
                                   )}
+                                  <button
+                                    type="button"
+                                    onClick={() => openSplitModalForBook(item, idx)}
+                                    title="画像を調整してこの枠を2冊に分割"
+                                    className="px-2 py-0.5 bg-[#EFF6FF] hover:bg-blue-100 text-[#1D4ED8] border border-blue-200 rounded text-[10px] font-bold cursor-pointer flex items-center space-x-1 transition-colors shadow-2xs shrink-0"
+                                  >
+                                    <Scissors className="w-3 h-3 text-blue-600" />
+                                    <span>2冊に分割</span>
+                                  </button>
                                   <button
                                     type="button"
                                     onClick={() => openLookupForBook(item)}
@@ -1637,6 +1716,19 @@ ${book.isbn ? `【ISBN】${book.isbn}\n` : ''}${book.publisher ? `【出版社�
         isOpen={knowledgeModalOpen}
         onClose={() => setKnowledgeModalOpen(false)}
         onKnowledgeUpdated={fetchLearnedCount}
+      />
+
+      {/* Book Split Modal (画像を調整して2冊に分割) */}
+      <BookSplitModal
+        isOpen={splitModalOpen}
+        onClose={() => {
+          setSplitModalOpen(false);
+          setSplitTargetBook(null);
+        }}
+        book={splitTargetBook}
+        bookIndex={splitTargetIndex}
+        shelfImage={selectedImage}
+        onApplySplit={handleApplySplit}
       />
     </div>
   );

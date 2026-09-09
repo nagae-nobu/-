@@ -61,17 +61,20 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   // Filtered & Sorted books
   const filteredBooks = useMemo(() => {
     return books.filter(b => {
-      // Search
-      const q = searchQuery.toLowerCase();
-      const matchesSearch =
-        b.title.toLowerCase().includes(q) ||
-        b.author.toLowerCase().includes(q) ||
-        (b.publisher || '').toLowerCase().includes(q) ||
-        (b.shelfLocation || '').toLowerCase().includes(q) ||
-        (b.auditNotes || '').toLowerCase().includes(q) ||
-        (b.review.comment || '').toLowerCase().includes(q);
-
-      if (!matchesSearch) return false;
+      // Multi-word Search (Title, Author, Publisher, Shelf, ISBN, Notes)
+      if (searchQuery.trim()) {
+        const terms = searchQuery.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        const matchesSearch = terms.every(term =>
+          b.title.toLowerCase().includes(term) ||
+          b.author.toLowerCase().includes(term) ||
+          (b.publisher || '').toLowerCase().includes(term) ||
+          (b.shelfLocation || '').toLowerCase().includes(term) ||
+          (b.isbn || '').replace(/[^0-9X]/gi, '').includes(term.replace(/[^0-9X]/gi, '')) ||
+          (b.auditNotes || '').toLowerCase().includes(term) ||
+          (b.review.comment || '').toLowerCase().includes(term)
+        );
+        if (!matchesSearch) return false;
+      }
 
       // Genre
       if (selectedGenre !== 'all' && b.genre !== selectedGenre) return false;
@@ -138,14 +141,14 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="書名、著者名、出版社、本棚の場所、点検メモ、感想で検索..."
-              className="w-full text-xs pl-9 pr-4 py-2.5 bg-[#FDFBF7] border border-[#D9C5B2] rounded-lg text-[#3E362E] focus:bg-white focus:ring-2 focus:ring-[#5D6D5F] focus:border-[#5D6D5F] focus:outline-none transition-colors"
+              placeholder="タイトルや著者名で書籍を検索・絞り込み（出版社、棚、メモも検索可能）..."
+              className="w-full text-xs pl-9 pr-14 py-2.5 bg-[#FDFBF7] border border-[#D9C5B2] rounded-lg text-[#3E362E] focus:bg-white focus:ring-2 focus:ring-[#5D6D5F] focus:border-[#5D6D5F] focus:outline-none transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2.5 text-xs text-[#8C7D6F] hover:text-[#3E362E] cursor-pointer"
+                className="absolute right-3 top-2.5 text-xs text-[#8C7D6F] hover:text-[#3E362E] cursor-pointer font-medium"
               >
                 クリア
               </button>
@@ -311,10 +314,25 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
       </div>
 
       {/* Result Counter & Action Bar */}
-      <div className="flex items-center justify-between text-xs text-[#786C5E] px-1">
-        <span>
-          表示中: <strong className="text-[#3E362E]">{filteredBooks.length}</strong> / 全 {books.length} 冊
-        </span>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-[#786C5E] px-1">
+        <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+          <span>
+            表示中: <strong className="text-[#3E362E]">{filteredBooks.length}</strong> / 全 {books.length} 冊
+          </span>
+          {searchQuery && (
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-[#EFE9E0] text-[#3E362E] border border-[#D9C5B2]">
+              検索: 「{searchQuery}」
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="ml-1 text-[#8C7D6F] hover:text-[#3E362E] cursor-pointer font-bold"
+                title="検索をクリア"
+              >
+                ×
+              </button>
+            </span>
+          )}
+        </div>
         <div className="flex items-center space-x-2">
           <button
             type="button"
@@ -348,16 +366,25 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               該当する書籍が見つかりませんでした
             </h3>
             <p className="text-xs text-[#786C5E] mt-1">
-              検索語句やフィルター条件を変更するか、新しい書籍を登録してください。
+              {searchQuery ? `「${searchQuery}」に一致する書籍はありませんでした。タイトルや著者名をご確認ください。` : '検索語句やフィルター条件を変更するか、新しい書籍を登録してください。'}
             </p>
           </div>
-          <div className="flex items-center justify-center space-x-3 pt-2">
+          <div className="flex items-center justify-center space-x-3 pt-2 flex-wrap gap-2">
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="px-4 py-2 bg-[#5D6D5F] hover:bg-[#4B594D] text-white text-xs font-bold rounded-lg shadow-xs cursor-pointer transition-colors"
+              >
+                検索ワードをクリア
+              </button>
+            )}
             <button
               type="button"
               onClick={onNavigateToScan}
-              className="px-4 py-2 bg-[#5D6D5F] hover:bg-[#4B594D] text-white text-xs font-bold rounded-lg shadow-xs flex items-center space-x-1.5 cursor-pointer transition-colors"
+              className="px-4 py-2 bg-[#F7F3EE] hover:bg-[#EAE4DB] text-[#3E362E] text-xs font-semibold rounded-lg border border-[#E8E1D7] flex items-center space-x-1.5 cursor-pointer transition-colors"
             >
-              <Camera className="w-4 h-4" />
+              <Camera className="w-4 h-4 text-[#5D6D5F]" />
               <span>本棚写真をスキャンする</span>
             </button>
             <button
