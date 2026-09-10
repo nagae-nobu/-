@@ -1,7 +1,23 @@
 import React from 'react';
-import { BookOpen, Camera, ClipboardCheck, Sparkles, RefreshCw, Plus, AlertTriangle, FileSpreadsheet, CheckCircle2, Wrench } from 'lucide-react';
-import { Book } from '../types';
+import { 
+  BookOpen, 
+  Camera, 
+  ClipboardCheck, 
+  Sparkles, 
+  RefreshCw, 
+  Plus, 
+  AlertTriangle, 
+  FileSpreadsheet, 
+  CheckCircle2, 
+  Wrench,
+  ShieldCheck,
+  Edit3,
+  Eye,
+  LogOut
+} from 'lucide-react';
+import { Book, UserAccount } from '../types';
 import { exportBooksToCSV } from '../utils/csvExport';
+import { canAccessMaintenance, isViewerOnly } from '../utils/auth';
 
 interface HeaderProps {
   books: Book[];
@@ -9,7 +25,10 @@ interface HeaderProps {
   setActiveTab: (tab: 'library' | 'scan' | 'audit' | 'reviews' | 'maintenance') => void;
   onOpenManualAdd: () => void;
   onResetSample: () => void;
+  onRefreshBooks?: () => Promise<void>;
   isLoading: boolean;
+  currentUser: UserAccount;
+  onSwitchAccount: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -18,7 +37,10 @@ export const Header: React.FC<HeaderProps> = ({
   setActiveTab,
   onOpenManualAdd,
   onResetSample,
-  isLoading
+  onRefreshBooks,
+  isLoading,
+  currentUser,
+  onSwitchAccount
 }) => {
   // Compute inventory audit stats
   const totalBooks = books.length;
@@ -29,6 +51,43 @@ export const Header: React.FC<HeaderProps> = ({
 
   const handleExportCSV = () => {
     exportBooksToCSV(books);
+  };
+
+  const isViewer = isViewerOnly(currentUser.role);
+  const showMaintenance = canAccessMaintenance(currentUser.role);
+  const canResetSample = currentUser.role === 'admin';
+
+  const renderRoleBadge = () => {
+    switch (currentUser.role) {
+      case 'admin':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-[#FAF0E6] text-[#8C5D39] border border-[#E8D4C0]">
+            <ShieldCheck className="w-3.5 h-3.5 mr-1 text-[#8C5D39]" />
+            管理者 ({currentUser.username})
+          </span>
+        );
+      case 'editor':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-[#EDF2EE] text-[#3E4E40] border border-[#D0DCD2]">
+            <Edit3 className="w-3.5 h-3.5 mr-1 text-[#5D6D5F]" />
+            編集者 ({currentUser.username})
+          </span>
+        );
+      case 'viewer':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-[#F0F4F8] text-[#32526E] border border-[#C9D7E3]">
+            <Eye className="w-3.5 h-3.5 mr-1 text-[#32526E]" />
+            閲覧者 (閲覧専用: {currentUser.username})
+          </span>
+        );
+      case 'registrar':
+        return (
+          <span className="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-bold bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]">
+            <Camera className="w-3.5 h-3.5 mr-1 text-[#D97706]" />
+            登録者 ({currentUser.username})
+          </span>
+        );
+    }
   };
 
   return (
@@ -55,8 +114,36 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Quick Action Buttons */}
-          <div className="flex items-center space-x-2 self-end sm:self-auto flex-wrap">
+          {/* Quick Action Buttons & Account */}
+          <div className="flex items-center space-x-2 self-end sm:self-auto flex-wrap gap-y-2">
+            {/* User Badge & Switcher */}
+            <div className="flex items-center space-x-1.5 mr-1">
+              {renderRoleBadge()}
+              <button
+                id="header-switch-user-btn"
+                type="button"
+                onClick={onSwitchAccount}
+                title="アカウントを切り替える（admin / user1 / user2 / user3）"
+                className="inline-flex items-center px-2 py-1 text-xs font-medium rounded-lg text-[#786C5E] hover:text-[#3E362E] bg-white hover:bg-[#F7F3EE] active:bg-[#EAE4DB] border border-[#D9C5B2] transition-colors cursor-pointer shadow-2xs"
+              >
+                <LogOut className="w-3.5 h-3.5 mr-1 text-[#8C7D6F]" />
+                切替
+              </button>
+            </div>
+
+            {onRefreshBooks && (
+              <button
+                id="header-sync-btn"
+                type="button"
+                onClick={onRefreshBooks}
+                disabled={isLoading}
+                title="サーバーの最新共有蔵書データと同期"
+                className="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-[#3E4E40] bg-[#EDF2EE] hover:bg-[#DDE6DF] active:bg-[#CCDACC] border border-[#CCDACC] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 mr-1 text-[#5D6D5F] ${isLoading ? 'animate-spin' : ''}`} />
+                共有同期
+              </button>
+            )}
             <button
               id="header-export-csv-btn"
               type="button"
@@ -67,26 +154,30 @@ export const Header: React.FC<HeaderProps> = ({
               <FileSpreadsheet className="w-3.5 h-3.5 mr-1.5 text-[#5D6D5F]" />
               CSVエクスポート
             </button>
-            <button
-              id="header-reset-sample-btn"
-              type="button"
-              onClick={onResetSample}
-              disabled={isLoading}
-              title="初期点検サンプルデータに戻す"
-              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg text-[#635547] bg-[#F7F3EE] hover:bg-[#EAE4DB] active:bg-[#DFD7CC] border border-[#E8E1D7] transition-colors cursor-pointer disabled:opacity-50"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
-              サンプル復元
-            </button>
-            <button
-              id="header-manual-add-btn"
-              type="button"
-              onClick={onOpenManualAdd}
-              className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg text-[#3E362E] bg-[#F7F3EE] hover:bg-[#EAE4DB] active:bg-[#DFD7CC] transition-colors border border-[#D9C5B2] cursor-pointer"
-            >
-              <Plus className="w-3.5 h-3.5 mr-1 text-[#786C5E]" />
-              手動登録
-            </button>
+            {canResetSample && (
+              <button
+                id="header-reset-sample-btn"
+                type="button"
+                onClick={onResetSample}
+                disabled={isLoading}
+                title="初期点検サンプルデータに戻す（管理者専用）"
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg text-[#635547] bg-[#F7F3EE] hover:bg-[#EAE4DB] active:bg-[#DFD7CC] border border-[#E8E1D7] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
+                サンプル復元
+              </button>
+            )}
+            {!isViewer && (
+              <button
+                id="header-manual-add-btn"
+                type="button"
+                onClick={onOpenManualAdd}
+                className="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-lg text-[#3E362E] bg-[#F7F3EE] hover:bg-[#EAE4DB] active:bg-[#DFD7CC] transition-colors border border-[#D9C5B2] cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5 mr-1 text-[#786C5E]" />
+                手動登録
+              </button>
+            )}
             <button
               id="header-scan-cta-btn"
               type="button"
@@ -166,18 +257,21 @@ export const Header: React.FC<HeaderProps> = ({
               読書メモ・レビュー
             </button>
 
-            <button
-              id="tab-maintenance"
-              onClick={() => setActiveTab('maintenance')}
-              className={`flex items-center px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors cursor-pointer shrink-0 ${
-                activeTab === 'maintenance'
-                  ? 'bg-[#EDF2EE] text-[#38483B] font-semibold border border-[#CCDACC] shadow-xs'
-                  : 'text-[#786C5E] hover:text-[#3E362E] hover:bg-[#F7F3EE]'
-              }`}
-            >
-              <Wrench className="w-4 h-4 mr-1.5 sm:mr-2 text-[#5D6D5F]" />
-              メンテナンス
-            </button>
+            {/* Maintenance is ONLY displayed for admin */}
+            {showMaintenance && (
+              <button
+                id="tab-maintenance"
+                onClick={() => setActiveTab('maintenance')}
+                className={`flex items-center px-3 py-1.5 sm:px-3.5 sm:py-2 text-xs sm:text-sm font-medium rounded-lg whitespace-nowrap transition-colors cursor-pointer shrink-0 ${
+                  activeTab === 'maintenance'
+                    ? 'bg-[#EDF2EE] text-[#38483B] font-semibold border border-[#CCDACC] shadow-xs'
+                    : 'text-[#786C5E] hover:text-[#3E362E] hover:bg-[#F7F3EE]'
+                }`}
+              >
+                <Wrench className="w-4 h-4 mr-1.5 sm:mr-2 text-[#5D6D5F]" />
+                メンテナンス
+              </button>
+            )}
           </nav>
 
           {/* Inventory Audit Metrics Bar */}

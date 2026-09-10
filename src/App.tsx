@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Book, BookReview } from './types';
+import { Book, BookReview, UserAccount } from './types';
 import { Header } from './components/Header';
 import { LibraryView } from './components/LibraryView';
 import { BookshelfScanner } from './components/BookshelfScanner';
@@ -9,6 +9,17 @@ import { BookDetailModal } from './components/BookDetailModal';
 import { ReviewModal } from './components/ReviewModal';
 import { AddBookModal } from './components/AddBookModal';
 import { MaintenanceView } from './components/MaintenanceView';
+import { LoginView } from './components/LoginView';
+import { RegistrarScannerView } from './components/RegistrarScannerView';
+import { 
+  getStoredUsers, 
+  saveStoredUsers, 
+  getStoredCurrentUser, 
+  setStoredCurrentUser, 
+  clearStoredCurrentUser, 
+  canAccessMaintenance, 
+  isViewerOnly 
+} from './utils/auth';
 import { CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 
 export default function App() {
@@ -16,6 +27,10 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'library' | 'scan' | 'audit' | 'reviews' | 'maintenance'>('library');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Authentication & Account state
+  const [users, setUsers] = useState<UserAccount[]>(() => getStoredUsers());
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(() => getStoredCurrentUser());
 
   // Modals state
   const [selectedBookForDetail, setSelectedBookForDetail] = useState<Book | null>(null);
@@ -61,11 +76,19 @@ export default function App() {
 
   // Register multiple or single book(s)
   const handleRegisterBooks = async (newBooks: Partial<Book>[]) => {
+    if (currentUser && isViewerOnly(currentUser.role)) {
+      showToast("閲覧者アカウント（user2）は閲覧専用のため登録できません", "error");
+      return;
+    }
+
     try {
       const res = await fetch('/api/books', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ books: newBooks })
+        body: JSON.stringify({ 
+          books: newBooks,
+          operator: currentUser ? currentUser.displayName : 'ユーザー操作'
+        })
       });
 
       if (!res.ok) {
@@ -79,7 +102,7 @@ export default function App() {
       } else {
         await fetchBooks();
       }
-      showToast(`${newBooks.length} 冊の書籍を点検台帳へ登録しました`);
+      showToast(`${newBooks.length} 冊の書籍を共有台帳へ登録しました`);
     } catch (err: any) {
       console.error("Failed to register books:", err);
       showToast(err.message || "書籍の登録中にエラーが発生しました", "error");
@@ -89,6 +112,11 @@ export default function App() {
 
   // Update book general details
   const handleUpdateBook = async (id: string, updates: Partial<Book>) => {
+    if (currentUser && isViewerOnly(currentUser.role)) {
+      showToast("閲覧者アカウント（user2）は閲覧専用のため更新できません", "error");
+      return;
+    }
+
     try {
       const res = await fetch(`/api/books/${id}`, {
         method: 'PUT',
@@ -115,6 +143,11 @@ export default function App() {
 
   // Toggle OCR failed status directly
   const handleToggleOcrFailed = async (book: Book) => {
+    if (currentUser && isViewerOnly(currentUser.role)) {
+      showToast("閲覧者アカウント（user2）は閲覧専用のためステータス変更はできません", "error");
+      return;
+    }
+
     const isCurrentlyFailed = Boolean(book.isOcrFailed || book.auditStatus === 'ocr_failed' || book.title.includes('OCR読み取り不可'));
     const nextFailed = !isCurrentlyFailed;
     
@@ -131,6 +164,11 @@ export default function App() {
 
   // Save review
   const handleSaveReview = async (bookId: string, review: BookReview) => {
+    if (currentUser && isViewerOnly(currentUser.role)) {
+      showToast("閲覧者アカウント（user2）は閲覧専用のため感想を保存できません", "error");
+      return;
+    }
+
     try {
       const res = await fetch(`/api/books/${bookId}`, {
         method: 'PUT',
@@ -157,6 +195,11 @@ export default function App() {
 
   // Delete book
   const handleDeleteBook = async (id: string) => {
+    if (currentUser && isViewerOnly(currentUser.role)) {
+      showToast("閲覧者アカウント（user2）は閲覧専用のため削除できません", "error");
+      return;
+    }
+
     try {
       const res = await fetch(`/api/books/${id}`, {
         method: 'DELETE'
@@ -177,6 +220,11 @@ export default function App() {
 
   // Reset to initial seed sample
   const handleResetSample = async () => {
+    if (currentUser && isViewerOnly(currentUser.role)) {
+      showToast("閲覧者アカウント（user2）は初期データ復元を行えません", "error");
+      return;
+    }
+
     if (!window.confirm("初期サンプル蔵書点検データにリセットしますか？現在の登録内容は初期データに置き換わります。")) {
       return;
     }
@@ -198,6 +246,61 @@ export default function App() {
     }
   };
 
+  const handleSwitchAccount = () => {
+    clearStoredCurrentUser();
+    setCurrentUser(null);
+    fetchBooks();
+  };
+
+  const handleLogin = (user: UserAccount) => {
+    setStoredCurrentUser(user);
+    setCurrentUser(user);
+    setUsers(getStoredUsers());
+    fetchBooks();
+    if (user.role === 'registrar') {
+      setActiveTab('scan');
+    } else if (activeTab === 'maintenance' && !canAccessMaintenance(user.role)) {
+      setActiveTab('library');
+    }
+    showToast(`${user.displayName} としてログインしました`);
+  };
+
+  // 1. Initial screen: Login screen (admin to user3 dropdown) if no user logged in
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-[#FDFBF7] text-[#3E362E] font-sans">
+        {toastMessage && (
+          <div className="fixed bottom-5 right-5 z-50 animate-in slide-in-from-bottom-5 duration-200">
+            <div className={`px-4 py-3 rounded-xl shadow-lg border flex items-center space-x-2.5 text-xs font-semibold ${
+              toastMessage.type === 'success'
+                ? 'bg-[#3E362E] text-[#FDFBF7] border-[#2F2923]'
+                : 'bg-[#7D3834] text-white border-[#5F2B28]'
+            }`}>
+              {toastMessage.type === 'success' ? (
+                <CheckCircle2 className="w-4 h-4 text-[#A1B8A3]" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-rose-300" />
+              )}
+              <span>{toastMessage.text}</span>
+            </div>
+          </div>
+        )}
+        <LoginView
+          users={users}
+          onLogin={handleLogin}
+        />
+      </div>
+    );
+  }
+
+  // 2. Main shared workspace for all roles (admin, editor, viewer, registrar)
+  const isViewer = isViewerOnly(currentUser.role);
+  const isRegistrar = currentUser.role === 'registrar';
+  const showMaintenance = canAccessMaintenance(currentUser.role);
+
+  // If user was on maintenance tab but has no permission (e.g. switched from admin to editor/viewer/registrar), force to library
+  const effectiveTab = (!showMaintenance && activeTab === 'maintenance') ? 'library' : activeTab;
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FDFBF7] text-[#3E362E] font-sans">
       {/* Toast Notification */}
@@ -218,14 +321,19 @@ export default function App() {
         </div>
       )}
 
-      {/* App Header */}
+      {/* App Header (Shared across all user roles) */}
       <Header
         books={books}
-        activeTab={activeTab}
+        activeTab={effectiveTab}
         setActiveTab={setActiveTab}
-        onOpenManualAdd={() => setIsManualAddOpen(true)}
+        onOpenManualAdd={() => {
+          if (!isViewer) setIsManualAddOpen(true);
+        }}
         onResetSample={handleResetSample}
+        onRefreshBooks={fetchBooks}
         isLoading={isLoading}
+        currentUser={currentUser}
+        onSwitchAccount={handleSwitchAccount}
       />
 
       {/* Main Container */}
@@ -233,54 +341,76 @@ export default function App() {
         {isLoading && books.length === 0 ? (
           <div className="py-24 flex flex-col items-center justify-center space-y-3">
             <RefreshCw className="w-8 h-8 text-[#5D6D5F] animate-spin" />
-            <p className="text-xs text-[#786C5E] font-medium">蔵書点検データベースを読み込み中...</p>
+            <p className="text-xs text-[#786C5E] font-medium">共有蔵書点検データベースを読み込み中...</p>
           </div>
         ) : (
           <>
-            {activeTab === 'library' && (
+            {effectiveTab === 'library' && (
               <LibraryView
                 books={books}
                 onSelectBook={(book) => setSelectedBookForDetail(book)}
                 onOpenReviewModal={(book) => setSelectedBookForReview(book)}
                 onDeleteBook={handleDeleteBook}
                 onToggleOcrFailed={handleToggleOcrFailed}
-                onOpenManualAdd={() => setIsManualAddOpen(true)}
+                onOpenManualAdd={() => {
+                  if (!isViewer) setIsManualAddOpen(true);
+                }}
                 onNavigateToScan={() => setActiveTab('scan')}
                 onRefreshBooks={fetchBooks}
                 onShowToast={showToast}
+                readOnly={isViewer}
               />
             )}
 
-            {activeTab === 'scan' && (
-              <BookshelfScanner
-                onRegisterBooks={handleRegisterBooks}
-                onNavigateToLibrary={() => setActiveTab('library')}
-              />
+            {effectiveTab === 'scan' && (
+              isRegistrar ? (
+                <RegistrarScannerView
+                  onRegisterBooks={handleRegisterBooks}
+                  onShowToast={showToast}
+                  onSwitchAccount={handleSwitchAccount}
+                  currentUserDisplayName={currentUser.displayName}
+                  onNavigateToLibrary={() => setActiveTab('library')}
+                  totalBooksCount={books.length}
+                />
+              ) : (
+                <BookshelfScanner
+                  onRegisterBooks={handleRegisterBooks}
+                  onNavigateToLibrary={() => setActiveTab('library')}
+                />
+              )
             )}
 
-            {activeTab === 'audit' && (
+            {effectiveTab === 'audit' && (
               <AuditView
                 books={books}
                 onSelectBook={(book) => setSelectedBookForDetail(book)}
                 onUpdateBook={handleUpdateBook}
                 onToggleOcrFailed={handleToggleOcrFailed}
                 onNavigateToScan={() => setActiveTab('scan')}
+                readOnly={isViewer}
               />
             )}
 
-            {activeTab === 'reviews' && (
+            {effectiveTab === 'reviews' && (
               <ReviewsView
                 books={books}
                 onOpenReviewModal={(book) => setSelectedBookForReview(book)}
                 onSelectBook={(book) => setSelectedBookForDetail(book)}
+                readOnly={isViewer}
               />
             )}
 
-            {activeTab === 'maintenance' && (
+            {effectiveTab === 'maintenance' && showMaintenance && (
               <MaintenanceView
                 books={books}
                 onRefreshBooks={fetchBooks}
                 onNavigateToTab={setActiveTab}
+                users={users}
+                onUpdateUsers={(nextUsers) => {
+                  setUsers(nextUsers);
+                  saveStoredUsers(nextUsers);
+                }}
+                currentUser={currentUser}
               />
             )}
           </>
@@ -299,6 +429,7 @@ export default function App() {
             setSelectedBookForDetail(null);
             setSelectedBookForReview(book);
           }}
+          readOnly={isViewer}
         />
       )}
 
@@ -311,7 +442,7 @@ export default function App() {
         />
       )}
 
-      {isManualAddOpen && (
+      {isManualAddOpen && !isViewer && (
         <AddBookModal
           isOpen={true}
           onClose={() => setIsManualAddOpen(false)}
@@ -326,6 +457,8 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="font-serif">© 蔵書点検アプリ — AI背表紙OCR点検・現物照合・CSV台帳エクスポート</p>
           <div className="flex items-center space-x-3 text-[11px] text-[#786C5E]">
+            <span>ログイン: {currentUser.displayName}</span>
+            <span>•</span>
             <span>データベース: 永続化ストレージ接続中</span>
             <span>•</span>
             <span>Gemini 3.8 Flash ビジョンOCR認識</span>

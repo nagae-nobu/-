@@ -6,12 +6,14 @@ interface ReviewsViewProps {
   books: Book[];
   onOpenReviewModal: (book: Book) => void;
   onSelectBook: (book: Book) => void;
+  readOnly?: boolean;
 }
 
 export const ReviewsView: React.FC<ReviewsViewProps> = ({
   books,
   onOpenReviewModal,
-  onSelectBook
+  onSelectBook,
+  readOnly = false
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
@@ -312,14 +314,24 @@ export const ReviewsView: React.FC<ReviewsViewProps> = ({
                     : '未読'}
                 </span>
 
-                <button
-                  type="button"
-                  onClick={() => onOpenReviewModal(book)}
-                  className="text-xs text-[#5D6D5F] hover:text-[#3E4E40] font-semibold hover:underline flex items-center space-x-1 cursor-pointer transition-colors"
-                >
-                  <Edit3 className="w-3 h-3" />
-                  <span>感想を編集・追記</span>
-                </button>
+                {readOnly ? (
+                  <button
+                    type="button"
+                    onClick={() => onSelectBook(book)}
+                    className="text-xs text-[#32526E] hover:underline font-semibold flex items-center space-x-1 cursor-pointer transition-colors"
+                  >
+                    <span>詳細・感想を閲覧</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onOpenReviewModal(book)}
+                    className="text-xs text-[#5D6D5F] hover:text-[#3E4E40] font-semibold hover:underline flex items-center space-x-1 cursor-pointer transition-colors"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>感想を編集・追記</span>
+                  </button>
+                )}
               </div>
             </div>
           ))}

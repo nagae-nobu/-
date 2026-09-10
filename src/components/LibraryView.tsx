@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Filter, Grid, List, LayoutGrid, ArrowUpDown, Plus, Camera, Bookmark, BookOpen, FileSpreadsheet, Download, AlertTriangle, CheckCircle2, Globe, Sparkles } from 'lucide-react';
+import { Search, Filter, Grid, List, LayoutGrid, ArrowUpDown, Plus, Camera, Bookmark, BookOpen, FileSpreadsheet, Download, AlertTriangle, CheckCircle2, Globe, Sparkles, RefreshCw } from 'lucide-react';
 import { Book, ReadingStatus } from '../types';
 import { BookCard } from './BookCard';
 import { AuditPromptBanner } from './AuditPromptBanner';
@@ -17,6 +17,7 @@ interface LibraryViewProps {
   onNavigateToScan: () => void;
   onRefreshBooks?: () => Promise<void>;
   onShowToast?: (message: string, type?: 'success' | 'error') => void;
+  readOnly?: boolean;
 }
 
 export const LibraryView: React.FC<LibraryViewProps> = ({
@@ -28,7 +29,8 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   onOpenManualAdd,
   onNavigateToScan,
   onRefreshBooks,
-  onShowToast
+  onShowToast,
+  readOnly = false
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedGenre, setSelectedGenre] = useState<string>('all');
@@ -40,6 +42,20 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
   const [displayMode, setDisplayMode] = useState<'grid' | 'shelf' | 'table'>('grid');
   const [spineTextOrientation, setSpineTextOrientation] = useState<'horizontal' | 'vertical'>('horizontal');
   const [isBatchIsbnModalOpen, setIsBatchIsbnModalOpen] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+
+  const handleRefresh = async () => {
+    if (!onRefreshBooks) return;
+    setIsRefreshing(true);
+    try {
+      await onRefreshBooks();
+      onShowToast?.('最新の共有蔵書データを再取得しました', 'success');
+    } catch {
+      onShowToast?.('最新データの取得に失敗しました', 'error');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // Books without ISBN count
   const missingIsbnCount = useMemo(() => {
@@ -173,6 +189,19 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                 </span>
               )}
             </button>
+
+            {onRefreshBooks && (
+              <button
+                type="button"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                title="全ユーザー共通の最新蔵書データを再同期"
+                className="inline-flex items-center px-2.5 py-1.5 text-xs font-semibold rounded-lg text-[#3E4E40] bg-[#EDF2EE] hover:bg-[#DDE6DF] border border-[#CCDACC] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 mr-1 text-[#5D6D5F] ${isRefreshing ? 'animate-spin' : ''}`} />
+                共有同期
+              </button>
+            )}
 
             <button
               id="library-csv-export-btn"
@@ -409,6 +438,7 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
               onOpenReviewModal={onOpenReviewModal}
               onDeleteBook={onDeleteBook}
               onToggleOcrFailed={onToggleOcrFailed}
+              readOnly={readOnly}
             />
           ))}
         </div>
@@ -589,40 +619,52 @@ export const LibraryView: React.FC<LibraryViewProps> = ({
                         {book.auditNotes || '-'}
                       </td>
                       <td className="py-3 px-4 text-right whitespace-nowrap space-x-1.5">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSearchQuery(book.title);
-                            setIsBatchIsbnModalOpen(true);
-                          }}
-                          className="px-2 py-0.5 bg-[#E7EFE8] text-[#2D5A34] hover:bg-[#C3D5C5] rounded text-[11px] font-semibold cursor-pointer transition-colors"
-                          title="この書籍のISBNをWebから照合"
-                        >
-                          ISBN照合
-                        </button>
-                        {onToggleOcrFailed && (
+                        {readOnly ? (
                           <button
                             type="button"
-                            onClick={() => onToggleOcrFailed(book)}
-                            className="px-2 py-0.5 bg-[#F7F3EE] text-[#6E5F52] hover:bg-[#EAE4DB] rounded text-[11px] font-medium cursor-pointer transition-colors"
+                            onClick={() => onSelectBook(book)}
+                            className="px-2.5 py-1 bg-[#F0F4F8] text-[#32526E] hover:bg-[#E2ECF5] border border-[#C9D7E3] rounded text-[11px] font-semibold cursor-pointer transition-colors"
                           >
-                            {isFailed ? '正常に戻す' : '不可にする'}
+                            詳細閲覧
                           </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSearchQuery(book.title);
+                                setIsBatchIsbnModalOpen(true);
+                              }}
+                              className="px-2 py-0.5 bg-[#E7EFE8] text-[#2D5A34] hover:bg-[#C3D5C5] rounded text-[11px] font-semibold cursor-pointer transition-colors"
+                              title="この書籍のISBNをWebから照合"
+                            >
+                              ISBN照合
+                            </button>
+                            {onToggleOcrFailed && (
+                              <button
+                                type="button"
+                                onClick={() => onToggleOcrFailed(book)}
+                                className="px-2 py-0.5 bg-[#F7F3EE] text-[#6E5F52] hover:bg-[#EAE4DB] rounded text-[11px] font-medium cursor-pointer transition-colors"
+                              >
+                                {isFailed ? '正常に戻す' : '不可にする'}
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => onOpenReviewModal(book)}
+                              className="px-2 py-0.5 bg-[#FAF2EB] text-[#8C5832] hover:bg-[#F3E3D5] rounded text-[11px] font-medium cursor-pointer transition-colors"
+                            >
+                              メモ
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onSelectBook(book)}
+                              className="px-2 py-0.5 bg-[#EDF2EE] text-[#38483B] hover:bg-[#DCE7DF] rounded text-[11px] font-semibold cursor-pointer transition-colors"
+                            >
+                              現物補正
+                            </button>
+                          </>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => onOpenReviewModal(book)}
-                          className="px-2 py-0.5 bg-[#FAF2EB] text-[#8C5832] hover:bg-[#F3E3D5] rounded text-[11px] font-medium cursor-pointer transition-colors"
-                        >
-                          メモ
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => onSelectBook(book)}
-                          className="px-2 py-0.5 bg-[#EDF2EE] text-[#38483B] hover:bg-[#DCE7DF] rounded text-[11px] font-semibold cursor-pointer transition-colors"
-                        >
-                          現物補正
-                        </button>
                       </td>
                     </tr>
                   );

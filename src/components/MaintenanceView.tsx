@@ -23,25 +23,33 @@ import {
   Eye,
   Sliders,
   Sparkles,
-  Info
+  Info,
+  Users
 } from 'lucide-react';
-import { Book, ReadingStatus, AuditStatus, DataAuditLog, DataChangeItem } from '../types';
+import { Book, ReadingStatus, AuditStatus, DataAuditLog, DataChangeItem, UserAccount } from '../types';
 import { exportBooksToCSV } from '../utils/csvExport';
 import { analyzeCsvDiff, ParsedCsvDiff } from '../utils/csvImport';
+import { UserManagementView } from './UserManagementView';
 
 interface MaintenanceViewProps {
   books: Book[];
   onRefreshBooks: () => Promise<void>;
   onNavigateToTab: (tab: 'library' | 'scan' | 'audit' | 'reviews') => void;
+  users: UserAccount[];
+  onUpdateUsers: (users: UserAccount[]) => void;
+  currentUser: UserAccount;
 }
 
 export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
   books,
   onRefreshBooks,
-  onNavigateToTab
+  onNavigateToTab,
+  users,
+  onUpdateUsers,
+  currentUser
 }) => {
   // Main sub-tabs within Maintenance
-  const [subTab, setSubTab] = useState<'bulk' | 'csv' | 'logs'>('bulk');
+  const [subTab, setSubTab] = useState<'bulk' | 'csv' | 'logs' | 'users'>('bulk');
 
   // --- SUB-TAB 1: BULK MANAGEMENT STATE ---
   const [selectedBookIds, setSelectedBookIds] = useState<string[]>([]);
@@ -611,6 +619,23 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
           <span>データ修正ログ（1週間保持）</span>
           <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-[#FEF3C7] text-[#92400E] border border-[#FCD34D]">
             7日間
+          </span>
+        </button>
+
+        <button
+          type="button"
+          id="maintenance-subtab-users"
+          onClick={() => setSubTab('users')}
+          className={`py-2 px-3.5 sm:px-4 text-xs font-bold border-b-2 flex items-center space-x-2 transition-colors cursor-pointer shrink-0 rounded-t-lg ${
+            subTab === 'users'
+              ? 'border-[#8C5D39] text-[#8C5D39] bg-[#FAF0E6]/60'
+              : 'border-transparent text-[#786C5E] hover:text-[#8C5D39] hover:bg-[#FAF0E6]/30'
+          }`}
+        >
+          <Users className="w-4 h-4 text-[#8C5D39]" />
+          <span>ユーザー管理（管理者）</span>
+          <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-[#FAF0E6] text-[#8C5D39] border border-[#E8D4C0]">
+            {users.length}名
           </span>
         </button>
       </div>
@@ -1291,6 +1316,17 @@ export const MaintenanceView: React.FC<MaintenanceViewProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* SUB-TAB 4: USER ACCOUNT MANAGEMENT (ADMIN ONLY)                          */}
+      {/* ========================================================================= */}
+      {subTab === 'users' && (
+        <UserManagementView
+          users={users}
+          onUpdateUsers={onUpdateUsers}
+          currentUser={currentUser}
+        />
       )}
 
       {/* ========================================================================= */}

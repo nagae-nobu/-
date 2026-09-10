@@ -128,5 +128,19 @@ export interface BookIsbnLookupItem {
   errorMessage?: string;
 }
 
+export type UserRole = 'admin' | 'editor' | 'viewer' | 'registrar';
+
+export interface UserAccount {
+  id: string; // 'admin' | 'user1' | 'user2' | 'user3' | custom
+  username: string;
+  displayName: string;
+  role: UserRole;
+  roleLabel: string;
+  description: string;
+  createdAt: string;
+  lastLoginAt?: string;
+  isActive: boolean;
+}
+
 
 

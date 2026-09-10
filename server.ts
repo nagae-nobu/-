@@ -419,6 +419,7 @@ app.post("/api/books", (req, res) => {
     const formattedBooks = toAdd.map((item: any, idx: number) => {
       const id = item.id || `book-${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 7)}`;
       return {
+        ...item,
         id,
         title: item.title || "無題の書籍",
         author: item.author || "著者不明",
@@ -426,9 +427,13 @@ app.post("/api/books", (req, res) => {
         publishedYear: item.publishedYear || "",
         isbn: item.isbn || "",
         genre: item.genre || "一般",
-        shelfLocation: item.shelfLocation || "未定",
-        spineColor: item.spineColor || "#3b82f6",
+        shelfLocation: item.shelfLocation || "メイン本棚",
+        spineColor: item.spineColor || "#5D6D5F",
         summary: item.summary || item.description || "",
+        isOcrFailed: Boolean(item.isOcrFailed),
+        auditStatus: item.auditStatus || (item.isOcrFailed ? "ocr_failed" : "normal"),
+        auditNotes: item.auditNotes || "",
+        registeredBy: item.registeredBy || req.body.operator || "",
         review: item.review || {
           rating: 0,
           comment: "",
@@ -440,7 +445,7 @@ app.post("/api/books", (req, res) => {
           status: "available",
           history: []
         },
-        registeredVia: item.registeredVia || "manual",
+        registeredVia: item.registeredVia || "scan",
         createdAt: item.createdAt || now,
         updatedAt: now
       };
@@ -448,6 +453,14 @@ app.post("/api/books", (req, res) => {
 
     const updated = [...formattedBooks, ...current];
     saveStoredBooks(updated);
+
+    recordDataAuditLog({
+      actionType: "create",
+      targetTitle: formattedBooks.length === 1 ? formattedBooks[0].title : `${formattedBooks[0].title} ほか計${formattedBooks.length}冊`,
+      details: `${formattedBooks.length} 冊の書籍を点検台帳・共有本棚に新規登録しました（配架先: ${formattedBooks[0].shelfLocation}）`,
+      operator: req.body.operator || (formattedBooks[0].registeredBy || "ユーザー操作")
+    });
+
     res.json({ success: true, count: formattedBooks.length, added: formattedBooks, books: updated });
   } catch (err: any) {
     console.error("Failed to add books:", err);
@@ -1516,10 +1529,61 @@ function normalizeHorizontalText(text: any): string {
 
 app.post("/api/scan-bookshelf", async (req, res) => {
   try {
-    const { imageBase64, mimeType = "image/jpeg" } = req.body;
+    const rawImage = req.body.imageBase64 || req.body.image || req.body.dataUrl || req.body.imageDataUrl;
 
-    if (!imageBase64) {
+    if (!rawImage || typeof rawImage !== "string" || rawImage.trim().length === 0) {
       return res.status(400).json({ error: "本棚の画像データ(Base64)が送信されていません" });
+    }
+
+    let mimeType = req.body.mimeType;
+    if (!mimeType && rawImage.startsWith("data:")) {
+      const match = rawImage.match(/^data:([^;]+);base64,/);
+      if (match && match[1]) {
+        mimeType = match[1];
+      }
+    }
+    mimeType = mimeType || "image/jpeg";
+
+    // Strip data url prefix if present
+    const cleanBase64 = rawImage.replace(/^data:[^;]+;base64,/, "");
+
+    // Gracefully handle SVG data (e.g. from built-in sample bookshelves) which Gemini vision cannot parse natively
+    if (mimeType === "image/svg+xml" || rawImage.includes("data:image/svg+xml")) {
+      try {
+        const svgContent = Buffer.from(cleanBase64, "base64").toString("utf-8");
+        // Extract books from SVG text elements
+        const titleMatches = Array.from(svgContent.matchAll(/<text[^>]*rotate\(90,\s*[^)]+\)[^>]*>([^<]+)<\/text>/g)).map(m => m[1].trim());
+        const authorMatches = Array.from(svgContent.matchAll(/font-size="8\.5"[^>]*>([^<]+)<\/text>/g)).map(m => m[1].trim());
+        const publisherMatches = Array.from(svgContent.matchAll(/font-size="7"[^>]*>([^<]+)<\/text>/g)).map(m => m[1].trim());
+
+        if (titleMatches.length > 0) {
+          const detectedBooks = titleMatches.map((title, idx) => {
+            const author = authorMatches[idx] || "著者不明";
+            const publisher = publisherMatches[idx] || "";
+            const total = titleMatches.length;
+            const widthPer = Math.min(100, Math.floor(800 / total));
+            const startX = 60 + idx * widthPer;
+            return {
+              tempId: `svg-det-${Date.now()}-${idx}`,
+              title: normalizeHorizontalText(title),
+              author: normalizeHorizontalText(author),
+              publisher: normalizeHorizontalText(publisher),
+              publishedYear: "2023",
+              isbn: "",
+              genre: "一般",
+              description: `${title} (${author})`,
+              spineColor: "#5D6D5F",
+              confidence: "高",
+              selected: true,
+              isOcrFailed: false,
+              box2d: [180, startX, 820, startX + widthPer - 10]
+            };
+          });
+          return res.json({ success: true, count: detectedBooks.length, detectedBooks });
+        }
+      } catch (svgErr) {
+        console.warn("SVG fallback parsing notice:", svgErr);
+      }
     }
 
     const ai = getGeminiClient();
@@ -1528,9 +1592,6 @@ app.post("/api/scan-bookshelf", async (req, res) => {
         error: "GEMINI_API_KEY が設定されていません。AI StudioのSecretsまたは環境変数を確認してください。"
       });
     }
-
-    // Strip data url prefix if present
-    const cleanBase64 = imageBase64.replace(/^data:image\/[a-zA-Z0-9+]+;base64,/, "");
 
     // Load user correction history for in-context OCR learning
     const savedCorrections = getStoredCorrections();

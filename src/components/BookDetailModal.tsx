@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Bookmark, Edit3, Check, Trash2, MessageSquare, Copy, ExternalLink, ClipboardCheck, AlertTriangle, CheckCircle2, Search, Wand2 } from 'lucide-react';
+import { X, Bookmark, Edit3, Check, Trash2, MessageSquare, Copy, ExternalLink, ClipboardCheck, AlertTriangle, CheckCircle2, Search, Wand2, Eye } from 'lucide-react';
 import { Book, ReadingStatus, AuditStatus, BookLookupResult } from '../types';
 import { BookLookupModal } from './BookLookupModal';
 import { normalizeHorizontalText } from '../utils/textUtils';
@@ -11,6 +11,7 @@ interface BookDetailModalProps {
   onUpdateBook: (id: string, updates: Partial<Book>) => Promise<void>;
   onDeleteBook: (id: string) => void;
   onOpenReviewModal: (book: Book) => void;
+  readOnly?: boolean;
 }
 
 export const BookDetailModal: React.FC<BookDetailModalProps> = ({
@@ -20,6 +21,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
   onUpdateBook,
   onDeleteBook,
   onOpenReviewModal,
+  readOnly = false,
 }) => {
   if (!isOpen) return null;
 
@@ -143,6 +145,14 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           className="h-2 w-full"
           style={{ backgroundColor: spineColor }}
         />
+
+        {/* Read-Only Notice Banner */}
+        {readOnly && (
+          <div className="bg-[#F0F4F8] border-b border-[#C9D7E3] px-6 py-2 flex items-center space-x-2 text-xs text-[#32526E]">
+            <Eye className="w-4 h-4 shrink-0" />
+            <span>閲覧専用モード（閲覧者: user2）: 書籍情報・点検ステータスの編集や削除はできません</span>
+          </div>
+        )}
 
         {/* Modal Header */}
         <div className="flex items-start justify-between px-6 py-4 border-b border-[#EFE9E0]">
@@ -293,7 +303,9 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
               <div className="flex items-center justify-between pb-2 border-b border-[#EFE9E0]">
                 <span className="text-xs font-bold text-[#524436] font-serif">書籍メタデータ</span>
-                {isEditingInfo ? (
+                {readOnly ? (
+                  <span className="text-xs text-[#32526E] bg-[#F0F4F8] px-2 py-0.5 rounded border border-[#C9D7E3]">閲覧専用</span>
+                ) : isEditingInfo ? (
                   <div className="flex items-center space-x-2">
                     <button
                       type="button"
@@ -490,17 +502,19 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsOcrFailedState(!isOcrFailedState)}
-                  className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 ${
-                    isOcrFailedState
-                      ? 'bg-[#5D6D5F] hover:bg-[#4D5C4F] text-white shadow-xs'
-                      : 'bg-[#FFFBEB] text-[#92400E] border border-[#FCD34D] hover:bg-[#FEF3C7]'
-                  }`}
-                >
-                  {isOcrFailedState ? '正常読取に切替' : 'OCR不可としてマーク'}
-                </button>
+                {!readOnly && (
+                  <button
+                    type="button"
+                    onClick={() => setIsOcrFailedState(!isOcrFailedState)}
+                    className={`px-3.5 py-2 text-xs font-bold rounded-lg transition-colors cursor-pointer shrink-0 ${
+                      isOcrFailedState
+                        ? 'bg-[#5D6D5F] hover:bg-[#4D5C4F] text-white shadow-xs'
+                        : 'bg-[#FFFBEB] text-[#92400E] border border-[#FCD34D] hover:bg-[#FEF3C7]'
+                    }`}
+                  >
+                    {isOcrFailedState ? '正常読取に切替' : 'OCR不可としてマーク'}
+                  </button>
+                )}
               </div>
 
               {/* Audit Notes Form */}
@@ -510,25 +524,33 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                   <label className="block text-[11px] font-medium text-[#786C5E] mb-1">
                     点検メモ・状態
                   </label>
-                  <input
-                    type="text"
-                    value={auditNotes}
-                    onChange={(e) => setAuditNotes(e.target.value)}
-                    placeholder="例: 背表紙日焼け、目視で『夏目漱石全集 第2巻』と確認"
-                    className="w-full text-xs px-3 py-2 bg-white border border-[#D9C5B2] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#5D6D5F]"
-                  />
+                  {readOnly ? (
+                    <div className="text-xs px-3 py-2 bg-white border border-[#D9C5B2] rounded-lg text-[#3E362E]">
+                      {auditNotes || '（点検メモなし）'}
+                    </div>
+                  ) : (
+                    <input
+                      type="text"
+                      value={auditNotes}
+                      onChange={(e) => setAuditNotes(e.target.value)}
+                      placeholder="例: 背表紙日焼け、目視で『夏目漱石全集 第2巻』と確認"
+                      className="w-full text-xs px-3 py-2 bg-white border border-[#D9C5B2] rounded-lg focus:outline-none focus:ring-1 focus:ring-[#5D6D5F]"
+                    />
+                  )}
                 </div>
 
-                <div className="flex justify-end pt-1">
-                  <button
-                    type="button"
-                    onClick={handleSaveAudit}
-                    disabled={isSaving}
-                    className="px-4 py-1.5 text-xs font-semibold text-white bg-[#5D6D5F] hover:bg-[#4D5C4F] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    {isSaving ? '保存中...' : '点検ステータスを保存'}
-                  </button>
-                </div>
+                {!readOnly && (
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSaveAudit}
+                      disabled={isSaving}
+                      className="px-4 py-1.5 text-xs font-semibold text-white bg-[#5D6D5F] hover:bg-[#4D5C4F] rounded-lg transition-colors cursor-pointer disabled:opacity-50"
+                    >
+                      {isSaving ? '保存中...' : '点検ステータスを保存'}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -543,14 +565,18 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
                     {readingStatusLabels[book.review.readingStatus] || '未読'}
                   </span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onOpenReviewModal(book)}
-                  className="text-xs text-[#5D6D5F] hover:text-[#4B594D] font-semibold flex items-center space-x-1 cursor-pointer"
-                >
-                  <Edit3 className="w-3 h-3" />
-                  <span>感想・評価を編集</span>
-                </button>
+                {!readOnly ? (
+                  <button
+                    type="button"
+                    onClick={() => onOpenReviewModal(book)}
+                    className="text-xs text-[#5D6D5F] hover:text-[#4B594D] font-semibold flex items-center space-x-1 cursor-pointer"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>感想・評価を編集</span>
+                  </button>
+                ) : (
+                  <span className="text-xs text-[#32526E] bg-[#F0F4F8] px-2 py-0.5 rounded border border-[#C9D7E3]">閲覧専用</span>
+                )}
               </div>
 
               {/* Review Comment */}
@@ -572,19 +598,23 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
 
         {/* Modal Bottom Footer */}
         <div className="px-6 py-3 bg-[#F7F3EE] border-t border-[#EFE9E0] flex items-center justify-between">
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm(`「${book.title}」をデータベースから削除してもよろしいですか？`)) {
-                onDeleteBook(book.id);
-                onClose();
-              }
-            }}
-            className="text-xs text-[#9A392F] hover:text-[#7F2F26] font-semibold flex items-center space-x-1 cursor-pointer transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>書籍を削除</span>
-          </button>
+          {!readOnly ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm(`「${book.title}」をデータベースから削除してもよろしいですか？`)) {
+                  onDeleteBook(book.id);
+                  onClose();
+                }
+              }}
+              className="text-xs text-[#9A392F] hover:text-[#7F2F26] font-semibold flex items-center space-x-1 cursor-pointer transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>書籍を削除</span>
+            </button>
+          ) : (
+            <span className="text-xs text-[#786C5E]">閲覧モード</span>
+          )}
 
           <button
             type="button"

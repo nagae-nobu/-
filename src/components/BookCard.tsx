@@ -1,5 +1,5 @@
 import React from 'react';
-import { Star, AlertTriangle, CheckCircle2, MessageSquare, Edit3, Trash2, Bookmark } from 'lucide-react';
+import { Star, AlertTriangle, CheckCircle2, MessageSquare, Edit3, Trash2, Bookmark, Eye } from 'lucide-react';
 import { Book, ReadingStatus } from '../types';
 import { normalizeHorizontalText } from '../utils/textUtils';
 
@@ -9,6 +9,7 @@ interface BookCardProps {
   onOpenReviewModal: (book: Book) => void;
   onDeleteBook: (bookId: string) => void;
   onToggleOcrFailed?: (book: Book) => void;
+  readOnly?: boolean;
 }
 
 export const BookCard: React.FC<BookCardProps> = ({
@@ -16,7 +17,8 @@ export const BookCard: React.FC<BookCardProps> = ({
   onSelect,
   onOpenReviewModal,
   onDeleteBook,
-  onToggleOcrFailed
+  onToggleOcrFailed,
+  readOnly = false
 }) => {
   const isOcrFailed = book.isOcrFailed || book.auditStatus === 'ocr_failed' || book.title.includes('OCR読み取り不可');
   const cleanTitle = normalizeHorizontalText(book.title);
@@ -173,7 +175,7 @@ export const BookCard: React.FC<BookCardProps> = ({
             </div>
           )}
 
-          {onToggleOcrFailed && (
+          {!readOnly && onToggleOcrFailed && (
             <button
               type="button"
               onClick={() => onToggleOcrFailed(book)}
@@ -196,18 +198,31 @@ export const BookCard: React.FC<BookCardProps> = ({
             onClick={() => onSelect(book)}
             className="text-[11px] text-[#6E5F52] hover:text-[#3E362E] font-medium flex items-center space-x-1 cursor-pointer transition-colors"
           >
-            <Edit3 className="w-3 h-3" />
-            <span>詳細・現物補正</span>
+            {readOnly ? (
+              <>
+                <Eye className="w-3 h-3 text-[#32526E]" />
+                <span>詳細を閲覧</span>
+              </>
+            ) : (
+              <>
+                <Edit3 className="w-3 h-3" />
+                <span>詳細・現物補正</span>
+              </>
+            )}
           </button>
 
-          <button
-            type="button"
-            onClick={() => onDeleteBook(book.id)}
-            title="削除"
-            className="text-[#A99C8E] hover:text-[#9A392F] transition-colors p-1 cursor-pointer"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          {!readOnly ? (
+            <button
+              type="button"
+              onClick={() => onDeleteBook(book.id)}
+              title="削除"
+              className="text-[#A99C8E] hover:text-[#9A392F] transition-colors p-1 cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <span className="text-[10px] text-[#32526E] font-medium">閲覧専用</span>
+          )}
         </div>
       </div>
     </div>

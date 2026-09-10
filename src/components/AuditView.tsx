@@ -23,6 +23,7 @@ interface AuditViewProps {
   onUpdateBook?: (id: string, updates: Partial<Book>) => Promise<void>;
   onToggleOcrFailed?: (book: Book) => void;
   onNavigateToScan: () => void;
+  readOnly?: boolean;
 }
 
 export const AuditView: React.FC<AuditViewProps> = ({
@@ -30,7 +31,8 @@ export const AuditView: React.FC<AuditViewProps> = ({
   onSelectBook,
   onUpdateBook,
   onToggleOcrFailed,
-  onNavigateToScan
+  onNavigateToScan,
+  readOnly = false
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'ocr_failed' | 'normal'>('all');
@@ -753,7 +755,11 @@ export const AuditView: React.FC<AuditViewProps> = ({
                         </span>
 
                         <div className="flex items-center space-x-1.5">
-                          {isFailed ? (
+                          {readOnly ? (
+                            <span className="text-[11px] text-[#32526E] bg-[#F0F4F8] px-2 py-0.5 rounded border border-[#C9D7E3]">
+                              閲覧専用
+                            </span>
+                          ) : isFailed ? (
                             <button
                               type="button"
                               onClick={() => startEditing(book)}
